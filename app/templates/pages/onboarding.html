@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IFFIU — Personas einrichten</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Background glow ── */
+    .bg-glow {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 30%, rgba(139,92,246,.15) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 30% at 80% 70%, rgba(59,130,246,.10) 0%, transparent 70%);
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 680px;
+      margin: 2rem;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 24px;
+      padding: 3rem;
+      backdrop-filter: blur(20px);
+    }
+
+    /* ── Progress bar ── */
+    .progress-wrap {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 2.5rem;
+    }
+    .step-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem; font-weight: 700;
+      border: 2px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.3);
+      transition: all .3s;
+      flex-shrink: 0;
+    }
+    .step-dot.active {
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      border-color: transparent; color: #fff;
+    }
+    .step-dot.done {
+      background: rgba(139,92,246,.3);
+      border-color: #8b5cf6; color: #8b5cf6;
+    }
+    .step-line {
+      flex: 1; height: 2px;
+      background: rgba(255,255,255,.08);
+      border-radius: 2px;
+      position: relative; overflow: hidden;
+    }
+    .step-line.done::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+    }
+
+    /* ── Heading ── */
+    .step-title {
+      font-size: 1.6rem; font-weight: 700; margin-bottom: .5rem;
+    }
+    .step-sub {
+      color: rgba(255,255,255,.45); font-size: .95rem; margin-bottom: 2rem;
+    }
+    .step-icon {
+      font-size: 2.5rem; margin-bottom: 1rem; display: block;
+    }
+
+    /* ── Step panels ── */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* ── Industry grid ── */
+    .industry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+    .industry-btn {
+      background: rgba(255,255,255,.04);
+      border: 2px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 16px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+      color: rgba(255,255,255,.7);
+    }
+    .industry-btn:hover {
+      background: rgba(139,92,246,.12);
+      border-color: rgba(139,92,246,.5);
+      color: #fff;
+    }
+    .industry-btn.selected {
+      background: rgba(139,92,246,.2);
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+    .industry-btn .ib-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+    .industry-btn .ib-label { font-size: .8rem; font-weight: 600; }
+
+    /* ── Size options ── */
+    .size-options { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 2rem; }
+    .size-btn {
+      flex: 1; min-width: 140px;
+      background: rgba(255,255,255,.04);
+      border: 2px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 20px 16px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .2s;
+      color: rgba(255,255,255,.7);
+    }
+    .size-btn:hover {
+      background: rgba(139,92,246,.12);
+      border-color: rgba(139,92,246,.5); color: #fff;
+    }
+    .size-btn.selected {
+      background: rgba(139,92,246,.2);
+      border-color: #8b5cf6; color: #fff;
+    }
+    .size-btn .sb-icon { font-size: 1.6rem; display: block; margin-bottom: 8px; }
+    .size-btn .sb-label { font-size: .9rem; font-weight: 700; margin-bottom: 4px; }
+    .size-btn .sb-sub { font-size: .75rem; color: rgba(255,255,255,.4); }
+
+    /* ── Product inputs ── */
+    .product-field {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      transition: border-color .2s;
+    }
+    .product-field:focus-within {
+      border-color: rgba(139,92,246,.6);
+    }
+    .product-field .pf-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0;
+    }
+    .product-field input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #fff; font-size: .95rem;
+    }
+    .product-field input::placeholder { color: rgba(255,255,255,.3); }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 1rem; }
+    .btn-back {
+      background: none; border: 1.5px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.5); border-radius: 12px;
+      padding: 12px 24px; cursor: pointer; font-size: .9rem;
+      transition: all .2s;
+    }
+    .btn-back:hover { border-color: rgba(255,255,255,.4); color: #fff; }
+    .btn-next {
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      color: #fff; border: none; border-radius: 12px;
+      padding: 14px 36px; cursor: pointer;
+      font-size: .95rem; font-weight: 700;
+      transition: all .2s; box-shadow: 0 4px 20px rgba(139,92,246,.4);
+    }
+    .btn-next:hover { opacity: .9; box-shadow: 0 4px 30px rgba(139,92,246,.6); }
+    .btn-next:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+    /* ── Preview panel (Step 3) ── */
+    .preview-label {
+      font-size: .75rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: rgba(255,255,255,.35);
+      margin-bottom: 10px;
+    }
+
+    /* ── Form (hidden) ── */
+    #hidden-form { display: none; }
+  </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="card">
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="step-dot active" id="dot-1">1</div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-dot" id="dot-2">2</div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-dot" id="dot-3">3</div>
+  </div>
+
+  <!-- ── Step 1: Branche ── -->
+  <div class="step-panel active" id="step-1">
+    <span class="step-icon">🏢</span>
+    <div class="step-title">In welcher Branche sind Sie tätig?</div>
+    <div class="step-sub">Wir passen Ihre Ziel-Personas passgenau an Ihre Branche an.</div>
+
+    <div class="industry-grid">
+      <div class="industry-btn" data-val="mode" onclick="selectIndustry(this)">
+        <span class="ib-icon">👗</span><span class="ib-label">Mode &<br>Textil</span>
+      </div>
+      <div class="industry-btn" data-val="tech" onclick="selectIndustry(this)">
+        <span class="ib-icon">💻</span><span class="ib-label">Tech &<br>Software</span>
+      </div>
+      <div class="industry-btn" data-val="food" onclick="selectIndustry(this)">
+        <span class="ib-icon">🍽️</span><span class="ib-label">Food &<br>Gastro</span>
+      </div>
+      <div class="industry-btn" data-val="gesundheit" onclick="selectIndustry(this)">
+        <span class="ib-icon">🏥</span><span class="ib-label">Gesundheit<br>& Pharma</span>
+      </div>
+      <div class="industry-btn" data-val="immobilien" onclick="selectIndustry(this)">
+        <span class="ib-icon">🏠</span><span class="ib-label">Immobilien</span>
+      </div>
+      <div class="industry-btn" data-val="auto" onclick="selectIndustry(this)">
+        <span class="ib-icon">🚗</span><span class="ib-label">Automotive</span>
+      </div>
+      <div class="industry-btn" data-val="reise" onclick="selectIndustry(this)">
+        <span class="ib-icon">✈️</span><span class="ib-label">Reise &<br>Tourismus</span>
+      </div>
+      <div class="industry-btn" data-val="sport" onclick="selectIndustry(this)">
+        <span class="ib-icon">🏆</span><span class="ib-label">Sport &<br>Fitness</span>
+      </div>
+      <div class="industry-btn" data-val="finanzen" onclick="selectIndustry(this)">
+        <span class="ib-icon">📈</span><span class="ib-label">Finanzen &<br>Banking</span>
+      </div>
+      <div class="industry-btn" data-val="handel" onclick="selectIndustry(this)">
+        <span class="ib-icon">🛒</span><span class="ib-label">Handel &<br>Retail</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <div></div>
+      <button class="btn-next" id="btn-next-1" disabled onclick="goStep(2)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 2: Unternehmensgröße ── -->
+  <div class="step-panel" id="step-2">
+    <span class="step-icon">📊</span>
+    <div class="step-title">Wie groß ist Ihr Unternehmen?</div>
+    <div class="step-sub">Das hilft uns, den Kommunikationsstil Ihrer Personas anzupassen.</div>
+
+    <div class="size-options">
+      <div class="size-btn" data-val="startup" onclick="selectSize(this)">
+        <span class="sb-icon">🚀</span>
+        <div class="sb-label">Startup / Klein</div>
+        <div class="sb-sub">1 – 50 Mitarbeiter</div>
+      </div>
+      <div class="size-btn" data-val="mittel" onclick="selectSize(this)">
+        <span class="sb-icon">🏢</span>
+        <div class="sb-label">Mittelstand</div>
+        <div class="sb-sub">51 – 500 Mitarbeiter</div>
+      </div>
+      <div class="size-btn" data-val="gross" onclick="selectSize(this)">
+        <span class="sb-icon">🌍</span>
+        <div class="sb-label">Großunternehmen</div>
+        <div class="sb-sub">500+ Mitarbeiter</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(1)">← Zurück</button>
+      <button class="btn-next" id="btn-next-2" disabled onclick="goStep(3)">Weiter →</button>
+    </div>
+  </div>
+
+  <!-- ── Step 3: Produkte ── -->
+  <div class="step-panel" id="step-3">
+    <span class="step-icon">📦</span>
+    <div class="step-title">Beschreiben Sie 3 Ihrer Produkte</div>
+    <div class="step-sub">Ein paar Stichworte genügen — wir bauen daraus Ihre persönlichen Ziel-Personas.</div>
+
+    <div class="product-field">
+      <div class="pf-num">1</div>
+      <input id="p1" type="text" placeholder="z.B. Abendkleider Luxus-Segment" maxlength="200">
+    </div>
+    <div class="product-field">
+      <div class="pf-num">2</div>
+      <input id="p2" type="text" placeholder="z.B. Streetwear für 18–25-Jährige" maxlength="200">
+    </div>
+    <div class="product-field">
+      <div class="pf-num">3</div>
+      <input id="p3" type="text" placeholder="z.B. Nachhaltige Basics aus Bio-Baumwolle" maxlength="200">
+    </div>
+
+    <div style="margin-top: 1.5rem; padding: 16px; background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.2); border-radius: 14px;">
+      <div class="preview-label">Was passiert als Nächstes</div>
+      <p style="font-size:.9rem; color:rgba(255,255,255,.6); line-height:1.6;">
+        Unser System generiert <strong style="color:#a78bfa">3 individuelle Personas</strong> speziell für Ihr Unternehmen —
+        mit Namen, Alter und konkretem Bezug zu Ihren Produkten. Diese ersetzen die generischen
+        Sinus-Milieu-Bezeichnungen in Ihrem Dashboard.
+      </p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goStep(2)">← Zurück</button>
+      <button class="btn-next" onclick="submitForm()">Personas generieren ✨</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Hidden form for submission -->
+<form id="hidden-form" method="POST" action="/onboarding/save">
+  <input type="hidden" name="industry" id="f-industry">
+  <input type="hidden" name="company_size" id="f-size">
+  <input type="hidden" name="product_1" id="f-p1">
+  <input type="hidden" name="product_2" id="f-p2">
+  <input type="hidden" name="product_3" id="f-p3">
+</form>
+
+<script>
+  let selectedIndustry = null;
+  let selectedSize = null;
+
+  function selectIndustry(el) {
+    document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedIndustry = el.dataset.val;
+    document.getElementById('btn-next-1').disabled = false;
+  }
+
+  function selectSize(el) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedSize = el.dataset.val;
+    document.getElementById('btn-next-2').disabled = false;
+  }
+
+  function goStep(step) {
+    // Hide all
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+
+    // Show target
+    document.getElementById('step-' + step).classList.add('active');
+    document.getElementById('dot-' + step).classList.add('active');
+
+    // Mark previous steps as done
+    for (let i = 1; i < step; i++) {
+      document.getElementById('dot-' + i).classList.add('done');
+      document.getElementById('line-' + i).classList.add('done');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function submitForm() {
+    document.getElementById('f-industry').value = selectedIndustry || '';
+    document.getElementById('f-size').value = selectedSize || '';
+    document.getElementById('f-p1').value = document.getElementById('p1').value;
+    document.getElementById('f-p2').value = document.getElementById('p2').value;
+    document.getElementById('f-p3').value = document.getElementById('p3').value;
+
+    if (!selectedIndustry || !selectedSize) {
+      alert('Bitte alle Schritte ausfüllen.');
+      return;
+    }
+    document.getElementById('hidden-form').submit();
+  }
+</script>
+</body>
+</html>

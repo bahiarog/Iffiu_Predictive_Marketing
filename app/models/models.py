@@ -27,7 +27,7 @@ class AnalysisStatus(str, enum.Enum):
 
 class User(Base):
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
@@ -41,9 +41,28 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
-    
+
     creatives = relationship("Creative", back_populates="user")
     scores = relationship("KampaScore", back_populates="user")
+    profile = relationship("UserProfile", back_populates="user", uselist=False)
+
+
+# ─── User Onboarding Profile ─────────────────────────────────────────────
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    industry = Column(String(100), nullable=False)       # z.B. "mode", "tech", "food"
+    company_size = Column(String(50), nullable=False)    # "startup", "mittel", "gross"
+    product_1 = Column(String(300))
+    product_2 = Column(String(300))
+    product_3 = Column(String(300))
+    onboarding_done = Column(Boolean, default=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+    user = relationship("User", back_populates="profile")
 
 
 # ─── Creatives (uploaded media for analysis) ─────────────────────────────

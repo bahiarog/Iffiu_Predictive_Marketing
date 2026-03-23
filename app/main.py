@@ -14,7 +14,7 @@ import os
 
 from app.core.config import settings
 from app.core.database import engine, get_db, Base
-from app.api import auth, analysis, dashboard, webhooks
+from app.api import auth, analysis, dashboard, webhooks, onboarding
 from app.models import user, creative, persona, score
 
 # Create tables
@@ -44,6 +44,7 @@ templates = Jinja2Templates(directory="app/templates")
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+app.include_router(onboarding.router, prefix="/onboarding", tags=["onboarding"])
 app.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 
