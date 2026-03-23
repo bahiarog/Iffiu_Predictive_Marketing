@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IFFIU — Analysis Results</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Same CSS as demo.html -->
+<style>
+:root{--bg:#08090d;--surface:rgba(255,255,255,.035);--surface2:rgba(255,255,255,.055);--border:rgba(255,255,255,.08);--text:#e8eaf0;--dim:rgba(232,234,240,.55);--accent:#6ee7b7;--accent2:#818cf8;--accent3:#f472b6;--warn:#fbbf24;--font:'DM Sans',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;
+  background:radial-gradient(ellipse 800px 600px at 20% 10%,rgba(110,231,183,.04),transparent 55%),radial-gradient(ellipse 700px 500px at 80% 30%,rgba(129,140,248,.04),transparent 50%),var(--bg);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;background:rgba(8,9,13,.85);}
+.logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.btn-sm{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.dash{max-width:1400px;margin:0 auto;padding:32px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px;}
+.card-title{font-size:13px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.loading{text-align:center;padding:80px;color:var(--dim);}
+.loading .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#resultsContainer{display:none;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">IFFIU</div>
+  <a href="/dashboard" class="btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Dashboard</a>
+</div>
+
+<div class="dash">
+  <div id="loadingState" class="loading">
+    <div class="spinner"></div>
+    <p>Loading analysis results...</p>
+  </div>
+  <div id="resultsContainer"></div>
+</div>
+
+<script>
+const creativeId = {{ creative_id }};
+
+function sc(v){return v>=70?'#6ee7b7':v>=45?'#fbbf24':'#f472b6';}
+function sbg(v){return v>=70?'rgba(110,231,183,.12)':v>=45?'rgba(251,191,36,.12)':'rgba(244,114,182,.12)';}
+
+async function loadResults(){
+  try{
+    const r=await fetch(`/api/results/${creativeId}`);
+    if(!r.ok)throw new Error('Failed to load');
+    const d=await r.json();
+    renderResults(d);
+  }catch(e){
+    document.getElementById('loadingState').innerHTML=`<p style="color:var(--accent3);">Failed to load results: ${e.message}</p><a href="/dashboard" class="btn-sm btn-secondary" style="margin-top:16px;">← Back to Dashboard</a>`;
+  }
+}
+
+function renderResults(d){
+  document.getElementById('loadingState').style.display='none';
+  const c=document.getElementById('resultsContainer');
+  c.style.display='block';
+  
+  const o=d.overall||{};
+  const rk=d.rekognition||{};
+  const ps=d.personas||[];
+  const score=o.score||0;
+  const offset=477.5-(477.5*score/100);
+  
+  // Build the same visual as demo but with real data
+  let html=`
+    <div class="card">
+      <div class="card-title"><i class="fas fa-brain"></i> IFFIU Predictive Score — ${d.creative?.title||'Creative'}</div>
+      <div style="display:grid;grid-template-columns:240px 1fr 280px;gap:32px;align-items:center;">
+        <div style="text-align:center;">
+          <div style="position:relative;width:160px;height:160px;margin:0 auto 12px;">
+            <svg width="160" height="160" viewBox="0 0 160 160" style="transform:rotate(-90deg);">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/>
+              <circle cx="80" cy="80" r="68" fill="none" stroke="url(#sg)" stroke-width="7" stroke-dasharray="427" stroke-dashoffset="${427-(427*score/100)}" stroke-linecap="round"/>
+              <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="font-size:44px;font-weight:800;font-family:var(--mono);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${Math.round(score)}</div>
+              <div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;">Predictive Score</div>
+            </div>
+          </div>
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:99px;font-size:12px;font-weight:700;background:${sbg(score)};color:${sc(score)};"><i class="fas fa-shield-halved"></i> ${o.risk_level||'—'} Risk</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          ${['Trust','Clarity','Emotion','Action'].map(dim=>{
+            const v=Math.round(o[dim.toLowerCase()+'_avg']||0);
+            const colors={Trust:'#3b82f6',Clarity:'#8b5cf6',Emotion:'#f59e0b',Action:'#10b981'};
+            return`<div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;background:${colors[dim]}18;flex-shrink:0;">${{Trust:'🤝',Clarity:'💎',Emotion:'❤️',Action:'🚀'}[dim]}</div>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">${dim}</div><div style="height:6px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="height:100%;width:${v}%;background:${colors[dim]};border-radius:99px;"></div></div></div>
+              <div style="width:40px;text-align:right;font-family:var(--mono);font-weight:700;font-size:15px;color:${sc(v)};">${v}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dim);margin-bottom:8px;">DETECTED ELEMENTS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;">
+            ${(rk.top_labels||[]).slice(0,8).map(l=>`<span style="padding:4px 10px;border-radius:6px;font-size:11px;background:var(--surface2);border:1px solid var(--border);">${l.name}</span>`).join('')}
+          </div>
+          ${rk.dominant_emotion?`<div style="font-size:12px;color:var(--dim);">Dominant: <strong style="color:var(--accent);">${rk.dominant_emotion}</strong></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  
+  // Persona Cards
+  if(ps.length){
+    html+=`<div class="card"><div class="card-title"><i class="fas fa-users"></i> Sinus-Milieu Persona Results</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">`;
+    ps.forEach(p=>{
+      const cs=Math.round(p.combined||0);
+      html+=`<div style="padding:24px;border-radius:14px;background:var(--surface);border:1px solid var(--border);position:relative;">
+        <div style="position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:8px;font-family:var(--mono);font-weight:700;font-size:14px;background:${sbg(cs)};color:${sc(cs)};">${cs}</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;background:${p.color||'#818cf8'}18;">${p.emoji||'👤'}</div>
+          <div><div style="font-weight:700;font-size:14px;">${p.name}</div><div style="font-size:11px;color:var(--dim);">${p.age_range||''}</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+          ${['trust','clarity','emotion','action'].map((d,i)=>{
+            const v=Math.round(p[d]||0);
+            return`<div style="display:flex;align-items:center;gap:8px;font-size:12px;"><div style="width:50px;color:var(--dim);">${['Trust','Clarity','Emotion','Action'][i]}</div><div style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;"><div style="height:100%;width:${v}%;background:${sc(v)};border-radius:99px;"></div></div><div style="width:28px;text-align:right;font-family:var(--mono);font-weight:600;font-size:11px;color:${sc(v)};">${v}</div></div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:12px;color:var(--dim);line-height:1.6;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);">${p.reasoning||''}</div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+  
+  c.innerHTML=html;
+}
+
+loadResults();
+</script>
+</body>
+</html>

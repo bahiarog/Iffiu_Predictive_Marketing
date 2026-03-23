@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IFFIU — Live Demo · Predictive Marketing Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,500;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #08090d; --surface: rgba(255,255,255,.035); --surface2: rgba(255,255,255,.055);
+  --border: rgba(255,255,255,.08); --text: #e8eaf0; --dim: rgba(232,234,240,.55);
+  --accent: #6ee7b7; --accent2: #818cf8; --accent3: #f472b6; --warn: #fbbf24;
+  --font: 'DM Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* Ambient */
+.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 800px 600px at 20% 10%,rgba(110,231,183,.04),transparent 55%),
+  radial-gradient(ellipse 700px 500px at 80% 30%,rgba(129,140,248,.04),transparent 50%),var(--bg);}
+
+/* Top Bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;background:rgba(8,9,13,.85);}
+.topbar .logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.topbar .logo span{font-weight:300;opacity:.5;}
+.demo-badge{padding:5px 14px;border-radius:99px;background:rgba(110,231,183,.1);border:1px solid rgba(110,231,183,.2);color:var(--accent);font-size:12px;font-weight:600;}
+.topbar-right{display:flex;gap:12px;align-items:center;}
+.btn-sm{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#34d399);color:#08090d;}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+
+/* Layout */
+.dash{display:grid;grid-template-columns:1fr;gap:24px;padding:32px;max-width:1400px;margin:0 auto;}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;transition:border-color .3s;}
+.card:hover{border-color:rgba(255,255,255,.12);}
+.card-title{font-size:13px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+/* Hero Score Card */
+.score-hero{display:grid;grid-template-columns:280px 1fr 300px;gap:32px;align-items:center;}
+.score-main{text-align:center;}
+.ring-container{position:relative;width:180px;height:180px;margin:0 auto 12px;}
+.ring-container svg{transform:rotate(-90deg);}
+.ring-container .ring-value{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-value .number{font-size:52px;font-weight:800;font-family:var(--mono);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.ring-value .sub{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;}
+.risk-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:99px;font-size:13px;font-weight:700;}
+.risk-low{background:rgba(110,231,183,.12);color:var(--accent);}
+.risk-medium{background:rgba(251,191,36,.12);color:var(--warn);}
+
+/* Dimensions */
+.dim-grid{display:flex;flex-direction:column;gap:14px;}
+.dim-row{display:flex;align-items:center;gap:12px;}
+.dim-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.dim-info{flex:1;}
+.dim-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.dim-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;}
+.dim-fill{height:100%;border-radius:99px;transition:width 1.2s ease;}
+.dim-val{width:40px;text-align:right;font-family:var(--mono);font-weight:700;font-size:15px;}
+
+/* Detected Elements */
+.detected-section{}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tag{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border);}
+.emotion-bars{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.emo-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+.emo-name{width:70px;color:var(--dim);}
+.emo-bar{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;}
+.emo-fill{height:100%;border-radius:99px;}
+.emo-val{width:35px;text-align:right;font-family:var(--mono);font-size:11px;}
+
+/* Persona Grid */
+.persona-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.persona-card{padding:24px;border-radius:14px;background:var(--surface);border:1px solid var(--border);position:relative;transition:all .3s;}
+.persona-card:hover{border-color:rgba(129,140,248,.2);transform:translateY(-2px);}
+.persona-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.persona-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.persona-info .pname{font-weight:700;font-size:14px;}
+.persona-info .pmeta{font-size:11px;color:var(--dim);}
+.persona-badge{position:absolute;top:16px;right:16px;padding:4px 12px;border-radius:8px;font-family:var(--mono);font-weight:700;font-size:14px;}
+.persona-dims{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.pdim{display:flex;align-items:center;gap:8px;font-size:12px;}
+.pdim-label{width:50px;color:var(--dim);}
+.pdim-bar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;}
+.pdim-fill{height:100%;border-radius:99px;}
+.pdim-val{width:28px;text-align:right;font-family:var(--mono);font-weight:600;font-size:11px;}
+.persona-reason{font-size:12px;color:var(--dim);line-height:1.6;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);}
+
+/* Sinus Map */
+.sinus-map{position:relative;width:100%;aspect-ratio:16/9;border-radius:16px;background:var(--surface);border:1px solid var(--border);overflow:hidden;}
+.sinus-axis{position:absolute;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;}
+.sinus-dot{position:absolute;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transform:translate(-50%,-50%);cursor:default;transition:transform .3s;border:2px solid rgba(255,255,255,.15);}
+.sinus-dot:hover{transform:translate(-50%,-50%) scale(1.25);z-index:10;}
+
+/* Rankings */
+.rank-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.rank-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.rank-pos{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--surface2);}
+
+/* Upload Simulation */
+.upload-zone{border:2px dashed var(--border);border-radius:16px;padding:48px;text-align:center;cursor:pointer;transition:all .3s;}
+.upload-zone:hover{border-color:var(--accent);background:rgba(110,231,183,.03);}
+.upload-zone i{font-size:36px;color:var(--accent);margin-bottom:12px;}
+.upload-zone h3{font-size:16px;margin-bottom:8px;}
+.upload-zone p{font-size:13px;color:var(--dim);}
+
+/* Analysis Animation */
+.analyzing{text-align:center;padding:48px;}
+.spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.progress-steps{display:flex;flex-direction:column;gap:8px;max-width:300px;margin:16px auto 0;text-align:left;}
+.step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);}
+.step.active{color:var(--accent);}
+.step.done{color:var(--accent);opacity:.6;}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.step.active .step-dot{background:var(--accent);box-shadow:0 0 8px rgba(110,231,183,.5);}
+.step.done .step-dot{background:var(--accent);}
+
+.hidden{display:none;}
+
+@media(max-width:900px){
+  .score-hero{grid-template-columns:1fr;}
+  .rank-grid{grid-template-columns:1fr;}
+  .topbar{padding:12px 16px;}
+  .dash{padding:16px;}
+}
+</style>
+</head>
+<body>
+<div class="ambient"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">IFFIU<span>.ai</span></div>
+  <div class="demo-badge"><i class="fas fa-flask"></i> Live Demo</div>
+  <div class="topbar-right">
+    <a href="/" class="btn-sm btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+    <a href="/register" class="btn-sm btn-primary"><i class="fas fa-rocket"></i> Start Free</a>
+  </div>
+</div>
+
+<div class="dash">
+
+  <!-- UPLOAD ZONE -->
+  <div id="uploadZone" class="upload-zone" onclick="startDemo()">
+    <i class="fas fa-cloud-arrow-up"></i>
+    <h3>Drop your creative here or click to analyze</h3>
+    <p>Supports MP4, MOV, JPG, PNG · Max 500MB · Try it now with sample data</p>
+    <div style="margin-top:16px;">
+      <span class="btn-sm btn-primary"><i class="fas fa-play"></i> Run Demo Analysis</span>
+    </div>
+  </div>
+
+  <!-- ANALYZING ANIMATION -->
+  <div id="analyzing" class="card hidden">
+    <div class="analyzing">
+      <div class="spinner"></div>
+      <h3 style="margin-bottom:4px;">Analyzing Creative...</h3>
+      <p style="font-size:13px;color:var(--dim);">Our AI engine is scanning your creative</p>
+      <div class="progress-steps" id="progressSteps">
+        <div class="step" id="step1"><div class="step-dot"></div> Uploading to secure cloud...</div>
+        <div class="step" id="step2"><div class="step-dot"></div> Detecting faces & emotions...</div>
+        <div class="step" id="step3"><div class="step-dot"></div> Analyzing text & objects...</div>
+        <div class="step" id="step4"><div class="step-dot"></div> Running Sinus-Milieu simulation...</div>
+        <div class="step" id="step5"><div class="step-dot"></div> Computing IFFIU Score...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS (hidden initially) -->
+  <div id="results" class="hidden">
+
+    <!-- OVERALL SCORE -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-brain"></i> IFFIU Predictive Score — Sample Creative</div>
+      <div class="score-hero">
+        <!-- Score Ring -->
+        <div class="score-main">
+          <div class="ring-container">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="76" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+              <circle id="scoreArc" cx="90" cy="90" r="76" fill="none" stroke="url(#demoGrad)" stroke-width="8"
+                      stroke-dasharray="477.5" stroke-dashoffset="477.5" stroke-linecap="round"/>
+              <defs><linearGradient id="demoGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#818cf8"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="ring-value">
+              <div class="number" id="scoreNum">0</div>
+              <div class="sub">Predictive Score</div>
+            </div>
+          </div>
+          <div class="risk-pill risk-low"><i class="fas fa-shield-halved"></i> Low Risk</div>
+        </div>
+
+        <!-- Dimensions -->
+        <div class="dim-grid">
+          <div class="dim-row">
+            <div class="dim-icon" style="background:rgba(59,130,246,.12);color:#3b82f6;">🤝</div>
+            <div class="dim-info"><div class="dim-name">Trust</div><div class="dim-bar"><div class="dim-fill" id="dimTrust" style="width:0%;background:#3b82f6;"></div></div></div>
+            <div class="dim-val" style="color:#3b82f6;" id="valTrust">0</div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-icon" style="background:rgba(139,92,246,.12);color:#8b5cf6;">💎</div>
+            <div class="dim-info"><div class="dim-name">Clarity</div><div class="dim-bar"><div class="dim-fill" id="dimClarity" style="width:0%;background:#8b5cf6;"></div></div></div>
+            <div class="dim-val" style="color:#8b5cf6;" id="valClarity">0</div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-icon" style="background:rgba(245,158,11,.12);color:#f59e0b;">❤️</div>
+            <div class="dim-info"><div class="dim-name">Emotion</div><div class="dim-bar"><div class="dim-fill" id="dimEmotion" style="width:0%;background:#f59e0b;"></div></div></div>
+            <div class="dim-val" style="color:#f59e0b;" id="valEmotion">0</div>
+          </div>
+          <div class="dim-row">
+            <div class="dim-icon" style="background:rgba(16,185,129,.12);color:#10b981;">🚀</div>
+            <div class="dim-info"><div class="dim-name">Action</div><div class="dim-bar"><div class="dim-fill" id="dimAction" style="width:0%;background:#10b981;"></div></div></div>
+            <div class="dim-val" style="color:#10b981;" id="valAction">0</div>
+          </div>
+        </div>
+
+        <!-- Detected -->
+        <div class="detected-section">
+          <div class="card-title" style="margin-bottom:8px;"><i class="fas fa-eye"></i> Detected Elements</div>
+          <div class="tag-list" id="tagList"></div>
+          <div style="margin-top:16px;">
+            <div style="font-size:12px;font-weight:600;color:var(--dim);margin-bottom:8px;">EMOTIONS DETECTED</div>
+            <div class="emotion-bars" id="emotionBars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SINUS MAP + RANKINGS -->
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;">
+      <div class="card">
+        <div class="card-title"><i class="fas fa-map"></i> Sinus-Milieu Mapping</div>
+        <div class="sinus-map" id="sinusMap">
+          <div class="sinus-axis" style="top:8px;left:50%;transform:translateX(-50%);">Upper Class ↑</div>
+          <div class="sinus-axis" style="bottom:8px;left:50%;transform:translateX(-50%);">Lower Class ↓</div>
+          <div class="sinus-axis" style="left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);">← Tradition</div>
+          <div class="sinus-axis" style="right:8px;top:50%;transform:translateY(-50%) rotate(90deg);">Innovation →</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fas fa-trophy"></i> Persona Rankings</div>
+        <div class="rank-grid">
+          <div><div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:12px;">🏆 TOP PERFORMERS</div><div id="topRank"></div></div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--accent3);margin-bottom:12px;">⚠️ NEEDS ATTENTION</div><div id="bottomRank"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERSONA CARDS -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users"></i> Sinus-Milieu Persona Results</div>
+      <div class="persona-grid" id="personaGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const personas = [
+  { slug:'konservativ-etablierte', name:'Konservativ-Etablierte', emoji:'🏛️', color:'#1e3a5f', age:'40-70', income:'High', tradition:75, status:85, trust:72, clarity:68, emotion:34, action:42, combined:54, desc:'Moderate Resonanz. Starke Vertrauenswerte, aber emotionale Wirkung zu gering für dieses Milieu.' },
+  { slug:'liberal-intellektuelle', name:'Liberal-Intellektuelle', emoji:'📚', color:'#4a90d9', age:'30-70', income:'High', tradition:40, status:90, trust:58, clarity:76, emotion:52, action:35, combined:55, desc:'Moderate Resonanz. Klarheit überzeugt, aber Handlungsimpuls fehlt für dieses analytische Milieu.' },
+  { slug:'performer', name:'Performer', emoji:'🚀', color:'#e63946', age:'25-55', income:'High', tradition:30, status:80, trust:45, clarity:52, emotion:68, action:85, combined:63, desc:'Gute Resonanz bei Performern. Starker Action-Score trifft den leistungsorientierten Nerv.' },
+  { slug:'expeditive', name:'Expeditive', emoji:'✨', color:'#9b59b6', age:'18-35', income:'Medium', tradition:15, status:70, trust:30, clarity:42, emotion:86, action:72, combined:58, desc:'Gute emotionale Wirkung. Kreative Avantgarde reagiert auf die emotionale Intensität.' },
+  { slug:'adaptiv-pragmatische', name:'Adaptiv-Pragmatische', emoji:'🎯', color:'#2ecc71', age:'20-45', income:'Medium', tradition:50, status:50, trust:68, clarity:78, emotion:52, action:65, combined:66, desc:'Starke Resonanz. Klarheit und Vertrauen passen perfekt zur pragmatischen Mitte.' },
+  { slug:'sozialoekologische', name:'Sozialökologische', emoji:'🌿', color:'#27ae60', age:'30-60', income:'Medium', tradition:55, status:65, trust:78, clarity:62, emotion:68, action:28, combined:59, desc:'Moderate Resonanz. Vertrauen und Emotion überzeugen, aber schwache Handlungsauslösung.' },
+  { slug:'buergerliche-mitte', name:'Bürgerliche Mitte', emoji:'🏠', color:'#f39c12', age:'30-65', income:'Medium', tradition:60, status:45, trust:76, clarity:82, emotion:38, action:55, combined:63, desc:'Gute Resonanz. Klarheit und Vertrauen treffen den Mainstream — emotionale Tiefe ausbaufähig.' },
+  { slug:'traditionelle', name:'Traditionelle', emoji:'🏡', color:'#92400e', age:'55-80', income:'Low', tradition:90, status:30, trust:85, clarity:80, emotion:18, action:22, combined:51, desc:'Moderate Resonanz. Sehr hohes Vertrauen, aber kaum emotionale oder aktive Wirkung.' },
+  { slug:'prekaere', name:'Prekäre', emoji:'🔧', color:'#78716c', age:'35-65', income:'Low', tradition:70, status:15, trust:65, clarity:82, emotion:42, action:55, combined:61, desc:'Gute Resonanz. Einfache, klare Botschaft kommt an. Vertrauen solide.' },
+  { slug:'konsum-hedonisten', name:'Konsum-Hedonisten', emoji:'🎮', color:'#e11d48', age:'18-40', income:'Low', tradition:50, status:25, trust:28, clarity:42, emotion:82, action:68, combined:55, desc:'Moderate Resonanz. Emotion und Action stark, aber Vertrauen zu gering für nachhaltigen Effekt.' },
+];
+
+const sampleLabels = ['Person','Architecture','Building','Urban','Text','Logo','Face','Electronics','Smile','Office'];
+const sampleEmotions = [{type:'CALM',conf:63.5},{type:'HAPPY',conf:22.1},{type:'SURPRISED',conf:8.4},{type:'CONFUSED',conf:3.8},{type:'SAD',conf:2.2}];
+
+function sc(v){return v>=70?'#6ee7b7':v>=45?'#fbbf24':'#f472b6';}
+function sbg(v){return v>=70?'rgba(110,231,183,.12)':v>=45?'rgba(251,191,36,.12)':'rgba(244,114,182,.12)';}
+
+function startDemo(){
+  document.getElementById('uploadZone').classList.add('hidden');
+  document.getElementById('analyzing').classList.remove('hidden');
+  
+  const steps=['step1','step2','step3','step4','step5'];
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i>0)document.getElementById(steps[i-1]).classList.remove('active'),document.getElementById(steps[i-1]).classList.add('done');
+    if(i<steps.length){document.getElementById(steps[i]).classList.add('active');i++;}
+    else{clearInterval(iv);setTimeout(showResults,400);}
+  },700);
+}
+
+function showResults(){
+  document.getElementById('analyzing').classList.add('hidden');
+  document.getElementById('results').classList.remove('hidden');
+  
+  // Animate score
+  const target=74;
+  const arc=document.getElementById('scoreArc');
+  const offset=477.5-(477.5*target/100);
+  setTimeout(()=>arc.style.strokeDashoffset=offset,100);
+  arc.style.transition='stroke-dashoffset 1.5s ease';
+  
+  let n=0;const ci=setInterval(()=>{n+=2;if(n>target){n=target;clearInterval(ci);}document.getElementById('scoreNum').textContent=n;},30);
+  
+  // Dimensions
+  const dims={Trust:72,Clarity:68,Emotion:56,Action:58};
+  setTimeout(()=>{
+    Object.entries(dims).forEach(([k,v])=>{
+      document.getElementById('dim'+k).style.width=v+'%';
+      let c=0;const ci2=setInterval(()=>{c+=2;if(c>v){c=v;clearInterval(ci2);}document.getElementById('val'+k).textContent=c;},25);
+    });
+  },300);
+  
+  // Tags
+  const tl=document.getElementById('tagList');
+  sampleLabels.forEach(l=>tl.innerHTML+=`<div class="tag">${l}</div>`);
+  
+  // Emotions
+  const eb=document.getElementById('emotionBars');
+  sampleEmotions.forEach(e=>{
+    const c=e.type==='HAPPY'?'var(--accent)':e.type==='CALM'?'var(--accent2)':'var(--dim)';
+    eb.innerHTML+=`<div class="emo-row"><div class="emo-name">${e.type}</div><div class="emo-bar"><div class="emo-fill" style="width:${e.conf}%;background:${c};"></div></div><div class="emo-val">${e.conf}%</div></div>`;
+  });
+  
+  // Sinus Map
+  const sm=document.getElementById('sinusMap');
+  personas.forEach(p=>{
+    const x=100-(p.tradition);const y=100-(p.status);
+    sm.innerHTML+=`<div class="sinus-dot" style="left:${Math.max(8,Math.min(92,x))}%;top:${Math.max(8,Math.min(92,y))}%;background:${sbg(p.combined)};border-color:${sc(p.combined)};" title="${p.name}: ${p.combined}">${p.emoji}</div>`;
+  });
+  
+  // Rankings
+  const sorted=[...personas].sort((a,b)=>b.combined-a.combined);
+  const tr=document.getElementById('topRank');const br=document.getElementById('bottomRank');
+  sorted.slice(0,5).forEach((p,i)=>{
+    tr.innerHTML+=`<div class="rank-item"><div class="rank-pos" style="color:var(--accent);">${i+1}</div><span style="font-size:18px;">${p.emoji}</span><div style="flex:1;"><div style="font-weight:600;font-size:13px;">${p.name}</div><div style="font-size:11px;color:var(--dim);">${p.age}</div></div><div style="font-family:var(--mono);font-weight:700;color:${sc(p.combined)};">${p.combined}</div></div>`;
+  });
+  sorted.slice(-5).reverse().forEach((p,i)=>{
+    br.innerHTML+=`<div class="rank-item"><div class="rank-pos" style="color:var(--accent3);">${sorted.length-4+i}</div><span style="font-size:18px;">${p.emoji}</span><div style="flex:1;"><div style="font-weight:600;font-size:13px;">${p.name}</div><div style="font-size:11px;color:var(--dim);">${p.age}</div></div><div style="font-family:var(--mono);font-weight:700;color:${sc(p.combined)};">${p.combined}</div></div>`;
+  });
+  
+  // Persona Cards
+  const pg=document.getElementById('personaGrid');
+  personas.forEach(p=>{
+    const dims2=['trust','clarity','emotion','action'];
+    const labels2=['Trust','Clarity','Emotion','Action'];
+    const colors2=['#3b82f6','#8b5cf6','#f59e0b','#10b981'];
+    let dimHTML='';
+    dims2.forEach((d,i)=>{
+      const v=p[d];
+      dimHTML+=`<div class="pdim"><div class="pdim-label">${labels2[i]}</div><div class="pdim-bar"><div class="pdim-fill" style="width:${v}%;background:${sc(v)};"></div></div><div class="pdim-val" style="color:${sc(v)};">${v}</div></div>`;
+    });
+    pg.innerHTML+=`
+      <div class="persona-card">
+        <div class="persona-badge" style="background:${sbg(p.combined)};color:${sc(p.combined)};">${p.combined}</div>
+        <div class="persona-top">
+          <div class="persona-avatar" style="background:${p.color}18;">${p.emoji}</div>
+          <div class="persona-info"><div class="pname">${p.name}</div><div class="pmeta">${p.age} · ${p.income}</div></div>
+        </div>
+        <div class="persona-dims">${dimHTML}</div>
+        <div class="persona-reason">${p.desc}</div>
+      </div>`;
+  });
+}
+</script>
+</body>
+</html>
