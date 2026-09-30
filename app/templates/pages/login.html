@@ -1,39 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>IFFIU — Login</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#08090d;--surface:rgba(255,255,255,.035);--border:rgba(255,255,255,.08);--text:#e8eaf0;--dim:rgba(232,234,240,.55);--accent:#6ee7b7;--accent2:#818cf8;}
+:root{--bg:#fafbff;--accent:#6366f1;--accent2:#8b5cf6;--text:#0f172a;--text-sub:#475569;--border:rgba(15,23,42,.1);--font:'Outfit',system-ui,sans-serif;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(ellipse 600px 400px at 30% 20%,rgba(110,231,183,.05),transparent),radial-gradient(ellipse 500px 300px at 70% 60%,rgba(129,140,248,.04),transparent),var(--bg);}
-.card{width:100%;max-width:420px;padding:48px;border-radius:20px;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(20px);}
-.logo{text-align:center;font-size:28px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.sub{text-align:center;font-size:14px;color:var(--dim);margin-bottom:32px;}
-label{display:block;font-size:13px;font-weight:600;color:var(--dim);margin-bottom:6px;}
-input[type=email],input[type=password]{width:100%;padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:15px;margin-bottom:20px;outline:none;transition:border-color .2s;}
+body{font-family:var(--font);background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{background:white;border:1px solid var(--border);border-radius:20px;padding:40px;width:100%;max-width:420px;box-shadow:0 4px 24px rgba(0,0,0,.04);}
+.logo{font-size:28px;font-weight:900;letter-spacing:-.04em;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.subtitle{text-align:center;font-size:14px;color:var(--text-sub);margin-bottom:24px;}
+label{display:block;font-size:12px;font-weight:600;color:var(--text-sub);margin-bottom:4px;margin-top:14px;}
+input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);font-size:14px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .2s;}
 input:focus{border-color:var(--accent);}
-.btn{width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#34d399);color:#08090d;font-weight:700;font-size:15px;cursor:pointer;transition:transform .2s;}
-.btn:hover{transform:translateY(-1px);}
-.links{text-align:center;margin-top:20px;font-size:13px;color:var(--dim);}
-.links a{color:var(--accent);text-decoration:none;}
+.btn{width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:20px;transition:transform .2s,box-shadow .2s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.25);}
+.links{text-align:center;margin-top:16px;font-size:13px;color:var(--text-sub);}
+.links a{color:var(--accent);font-weight:600;text-decoration:none;}
+.links a:hover{text-decoration:underline;}
+.error{display:none;padding:10px 14px;border-radius:8px;background:#fef2f2;border:1px solid #fecaca;color:#ef4444;font-size:13px;margin-top:14px;}
+.error.vis{display:block;}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="logo">IFFIU</div>
-  <div class="sub">Predictive Marketing Intelligence</div>
-  <form action="/auth/login" method="POST">
+  <div class="subtitle">Sign in to your account</div>
+  <div class="error" id="err"></div>
+  <form id="loginForm">
     <label>Email</label>
-    <input type="email" name="email" required placeholder="your@email.com">
+    <input type="email" id="email" placeholder="your@email.com" required>
     <label>Password</label>
-    <input type="password" name="password" required placeholder="••••••••">
+    <input type="password" id="password" placeholder="••••••••" required>
     <button type="submit" class="btn">Sign In</button>
   </form>
-  <div class="links">Don't have an account? <a href="/register">Create one free</a> · <a href="/">Home</a></div>
+  <div class="links">
+    No account? <a href="/register">Create one</a> · <a href="/">Home</a>
+  </div>
 </div>
+<script>
+document.getElementById('loginForm').addEventListener('submit', async(e)=>{
+  e.preventDefault();
+  const err=document.getElementById('err');
+  err.className='error';
+  try{
+    const r=await fetch('/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('password').value})});
+    if(r.redirected){window.location.href=r.url;return;}
+    const d=await r.json();
+    if(r.ok&&d.token){
+      document.cookie='access_token=Bearer '+d.token+';path=/;max-age=86400;secure;samesite=lax';
+      window.location.href='/dashboard';
+    }else{err.textContent=d.detail||'Login failed';err.className='error vis';}
+  }catch(ex){err.textContent='Connection error';err.className='error vis';}
+});
+</script>
 </body>
 </html>

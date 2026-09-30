@@ -1,44 +1,69 @@
-version: '3.8'
+version: "3.8"
 
 services:
   app:
     build: .
     container_name: iffiu-app
-    restart: always
-    ports:
-      - "8000:8000"
     env_file: .env
+    networks:
+      - default
+      - kampa
     depends_on:
       - db
     volumes:
-      - uploads:/app/uploads
+      - ./app:/app/app
+    restart: unless-stopped
+
+  sqs-worker:
+    build: .
+    container_name: iffiu-sqs-worker
+    command: python -m app.services.sfn_poller
+    env_file: .env
+    networks:
+      - default
+      - kampa
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app/app
+    restart: unless-stopped
 
   db:
     image: postgres:16-alpine
     container_name: iffiu-db
-    restart: always
     environment:
       POSTGRES_DB: iffiu
       POSTGRES_USER: iffiu
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-iffiu_secret_change_me}
+      POSTGRES_PASSWORD: iffiu_secret
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    restart: unless-stopped
 
   nginx:
     image: nginx:alpine
     container_name: iffiu-nginx
-    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/iffiu.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/iffiu-dashboard:/var/www/iffiu-dashboard:ro
+      - /var/www/negotiatex:/var/www/negotiatex:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    networks:
+      - default
+      - kampa
     depends_on:
       - app
+    restart: unless-stopped
 
 volumes:
   pgdata:
-  uploads:
+
+networks:
+  default:
+    name: iffiu-default
+  kampa:
+    external: true
+    name: iffiu-network

@@ -1,0 +1,45 @@
+/* GLOBAL WHITE SAAS OVERRIDE */
+
+body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* Remove dark backgrounds everywhere */
+.bg-black,
+.bg-gray-900,
+.bg-slate-900,
+.bg-dark {
+    background: #ffffff !important;
+}
+
+/* Text adjustments */
+.text-white {
+    color: #0f172a !important;
+}
+
+.text-gray-400,
+.text-gray-300 {
+    color: #64748b !important;
+}
+
+/* Cards */
+.card,
+.bg-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+/* Navbar */
+nav {
+    background: rgba(255,255,255,0.8) !important;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Buttons */
+.btn-primary {
+    background: #10b981 !important;
+    color: white !important;
+}

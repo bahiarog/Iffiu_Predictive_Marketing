@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title or "IFFIU" }}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- White SaaS Theme -->
+    <style>
+        body {
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        nav {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+<nav class="sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between">
+        <div class="font-semibold text-lg">IFFIU</div>
+        <div class="space-x-6 text-slate-600">
+            <a href="/">Home</a>
+            <a href="/demo">Demo</a>
+            <a href="/login">Login</a>
+        </div>
+    </div>
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

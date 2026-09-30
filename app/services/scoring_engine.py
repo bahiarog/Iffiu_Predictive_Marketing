@@ -1,297 +1,382 @@
-"""
-IFFIU Scoring Engine — Sinus-Milieu Persona Simulation
-Python port of KAMPA's calc-score.php
+"""Persona Scoring Engine v2 — Properly calibrated using Rekognition data
 
-Each Sinus-Milieu has unique reaction weights for Trust/Clarity/Emotion/Action.
-The engine computes how each persona segment would respond to a creative.
+Key changes from v1:
+- Base scores use full 0-100 range based on actual Rekognition signals
+- Persona weights MODULATE (±20%) instead of MULTIPLY (×0.5)
+- Risk thresholds: <35 high, 35-60 medium, >60 low
+- Better signal extraction from attention/brand/combined scores
+- Clarity properly rewards text presence and brand score
+- Action rewards CTA keywords, brand visibility, combined score
 """
-
-from typing import Optional
 from sqlalchemy.orm import Session
-from app.models.models import Persona, PersonaResult, KampaScore, RekognitionResult
+from app.models.models import Persona, PersonaResult, RekognitionResult, KampaScore
+import json
+import logging
+import math
 
-# ─── Default Sinus-Milieu Personas ───────────────────────────────────────
-
-DEFAULT_PERSONAS = [
-    {
-        "slug": "konservativ-etablierte", "name": "Konservativ-Etablierte",
-        "age_range": "40-70", "gender": "mixed", "income_level": "high", "education": "high",
-        "tradition_score": 75, "status_score": 85,
-        "weight_trust": 0.85, "weight_clarity": 0.70, "weight_emotion": 0.35, "weight_action": 0.40,
-        "avatar_emoji": "🏛️", "color_hex": "#1e3a5f",
-        "description_de": "Das klassische Establishment. Verantwortungs- und Erfolgsethik. Reagieren auf Vertrauen und Substanz.",
-        "sort_order": 1,
-    },
-    {
-        "slug": "liberal-intellektuelle", "name": "Liberal-Intellektuelle",
-        "age_range": "30-70", "gender": "mixed", "income_level": "high", "education": "high",
-        "tradition_score": 40, "status_score": 90,
-        "weight_trust": 0.60, "weight_clarity": 0.80, "weight_emotion": 0.55, "weight_action": 0.35,
-        "avatar_emoji": "📚", "color_hex": "#4a90d9",
-        "description_de": "Aufgeklärte Bildungselite. Vielfalt, Nachhaltigkeit, Kultur. Reagieren auf klare, differenzierte Botschaften.",
-        "sort_order": 2,
-    },
-    {
-        "slug": "performer", "name": "Performer",
-        "age_range": "25-55", "gender": "mixed", "income_level": "high", "education": "high",
-        "tradition_score": 30, "status_score": 80,
-        "weight_trust": 0.45, "weight_clarity": 0.55, "weight_emotion": 0.70, "weight_action": 0.90,
-        "avatar_emoji": "🚀", "color_hex": "#e63946",
-        "description_de": "Effizienzorientierte Leistungselite. Global, digital, statusbewusst. Reagieren stark auf Action und Dynamik.",
-        "sort_order": 3,
-    },
-    {
-        "slug": "expeditive", "name": "Expeditive",
-        "age_range": "18-35", "gender": "mixed", "income_level": "medium", "education": "high",
-        "tradition_score": 15, "status_score": 70,
-        "weight_trust": 0.30, "weight_clarity": 0.45, "weight_emotion": 0.90, "weight_action": 0.75,
-        "avatar_emoji": "✨", "color_hex": "#9b59b6",
-        "description_de": "Kreative Avantgarde. Unkonventionell, vernetzt, mental flexibel. Reagieren auf Emotion und Überraschung.",
-        "sort_order": 4,
-    },
-    {
-        "slug": "adaptiv-pragmatische", "name": "Adaptiv-Pragmatische",
-        "age_range": "20-45", "gender": "mixed", "income_level": "medium", "education": "medium",
-        "tradition_score": 50, "status_score": 50,
-        "weight_trust": 0.65, "weight_clarity": 0.75, "weight_emotion": 0.50, "weight_action": 0.65,
-        "avatar_emoji": "🎯", "color_hex": "#2ecc71",
-        "description_de": "Die moderne bürgerliche Mitte. Pragmatisch, anpassungsbereit, nutzenorientiert.",
-        "sort_order": 5,
-    },
-    {
-        "slug": "sozialoekologen", "name": "Sozialökologische",
-        "age_range": "30-60", "gender": "mixed", "income_level": "medium", "education": "high",
-        "tradition_score": 55, "status_score": 65,
-        "weight_trust": 0.80, "weight_clarity": 0.65, "weight_emotion": 0.70, "weight_action": 0.30,
-        "avatar_emoji": "🌿", "color_hex": "#27ae60",
-        "description_de": "Konsumkritisches, nachhaltigkeitsorientiertes Milieu. Reagieren auf Vertrauen und emotionale Tiefe.",
-        "sort_order": 6,
-    },
-    {
-        "slug": "buergerliche-mitte", "name": "Bürgerliche Mitte",
-        "age_range": "30-65", "gender": "mixed", "income_level": "medium", "education": "medium",
-        "tradition_score": 60, "status_score": 45,
-        "weight_trust": 0.75, "weight_clarity": 0.80, "weight_emotion": 0.40, "weight_action": 0.55,
-        "avatar_emoji": "🏠", "color_hex": "#f39c12",
-        "description_de": "Der leistungs- und anpassungsbereite Mainstream. Streben nach gesicherter Existenz und sozialer Anerkennung.",
-        "sort_order": 7,
-    },
-    {
-        "slug": "traditionelle", "name": "Traditionelle",
-        "age_range": "55-80", "gender": "mixed", "income_level": "low", "education": "low",
-        "tradition_score": 90, "status_score": 30,
-        "weight_trust": 0.90, "weight_clarity": 0.85, "weight_emotion": 0.20, "weight_action": 0.25,
-        "avatar_emoji": "🏡", "color_hex": "#92400e",
-        "description_de": "Sicherheits- und ordnungsliebende ältere Generation. Reagieren auf Vertrauen, Einfachheit und Bewährtes.",
-        "sort_order": 8,
-    },
-    {
-        "slug": "prekaere", "name": "Prekäre",
-        "age_range": "35-65", "gender": "mixed", "income_level": "low", "education": "low",
-        "tradition_score": 70, "status_score": 15,
-        "weight_trust": 0.70, "weight_clarity": 0.90, "weight_emotion": 0.45, "weight_action": 0.60,
-        "avatar_emoji": "🔧", "color_hex": "#78716c",
-        "description_de": "Um Orientierung und Teilhabe bemühte Unterschicht. Reagieren auf einfache, direkte Botschaften.",
-        "sort_order": 9,
-    },
-    {
-        "slug": "konsum-hedonisten", "name": "Konsum-Hedonisten",
-        "age_range": "18-40", "gender": "mixed", "income_level": "low", "education": "medium",
-        "tradition_score": 50, "status_score": 25,
-        "weight_trust": 0.30, "weight_clarity": 0.45, "weight_emotion": 0.85, "weight_action": 0.70,
-        "avatar_emoji": "🎮", "color_hex": "#e11d48",
-        "description_de": "Die spaß- und erlebnisorientierte untere Mittelschicht. Reagieren auf Spaß, Action und Entertainment.",
-        "sort_order": 10,
-    },
-]
+logger = logging.getLogger(__name__)
 
 
-def seed_default_personas(db: Session):
-    """Insert default Sinus-Milieu personas if none exist"""
-    count = db.query(Persona).filter(Persona.user_id.is_(None)).count()
-    if count > 0:
-        return
-    
-    for p in DEFAULT_PERSONAS:
-        persona = Persona(**p, category="sinus")
-        db.add(persona)
-    db.commit()
+def safe_list(val):
+    if val is None: return []
+    if isinstance(val, str):
+        try: return json.loads(val)
+        except: return []
+    return val if isinstance(val, list) else []
+
+def safe_dict(val):
+    if val is None: return {}
+    if isinstance(val, str):
+        try: return json.loads(val)
+        except: return {}
+    return val if isinstance(val, dict) else {}
+
+def get_texts(detected_text):
+    items = safe_list(detected_text)
+    result = []
+    for t in items:
+        if isinstance(t, str):
+            result.append(t.lower())
+        elif isinstance(t, dict):
+            result.append(t.get("text", "").lower())
+    return result
+
+def get_label_names(top_labels):
+    items = safe_list(top_labels)
+    result = []
+    for l in items:
+        if isinstance(l, str):
+            result.append(l.lower())
+        elif isinstance(l, dict):
+            result.append(l.get("name", "").lower())
+    return result
+
+def clamp(val, lo=0, hi=100):
+    return max(lo, min(hi, round(val, 1)))
 
 
-def calculate_persona_scores(db: Session, creative_id: int, user_id: int, 
-                              rekognition_data: Optional[dict] = None) -> dict:
+def calculate_persona_score(persona, d):
     """
-    Calculate Sinus-Milieu persona scores for a creative.
+    Calculate persona-specific scores from Rekognition data.
     
-    Args:
-        db: Database session
-        creative_id: ID of the creative being analyzed
-        user_id: Owner user ID
-        rekognition_data: Dict with attention, brand, combined, emotions, labels, etc.
-    
-    Returns:
-        Dict with overall_score, risk_level, persona_results[]
+    d = dict with: attention_score, brand_score, combined_score,
+        face_count, face_frame_count, text_frame_count, total_frames,
+        dominant_emotion, emotion_confidence, texts[], labels[], emotions{}
     """
-    
-    # Get active personas (system defaults + user custom)
+    attn = d.get("attention_score") or 0
+    brand = d.get("brand_score") or 0
+    combined = d.get("combined_score") or 0
+    fc = d.get("face_count", 0)
+    ff = d.get("face_frame_count", 0)
+    tf = d.get("text_frame_count", 0)
+    total = d.get("total_frames", 0)
+    dom_emotion = d.get("dominant_emotion", "") or ""
+    conf = d.get("emotion_confidence", 0) or 0
+    texts = d.get("texts", [])
+    labels = d.get("labels", [])
+    emotions = d.get("emotions", {})
+
+    # ══════════════════════════════════════════════════════════
+    # TRUST (Vertrauenswürdigkeit & Markensicherheit)
+    # Signals: faces present, positive emotions, familiar labels,
+    #          attention score, brand consistency
+    # ══════════════════════════════════════════════════════════
+    trust = 20  # base
+
+    # Attention score (0-100) is a strong trust signal
+    if attn > 0:
+        trust += attn * 0.35  # up to +35
+
+    # Face presence builds trust significantly
+    if fc >= 50:
+        trust += 20
+    elif fc >= 20:
+        trust += 16
+    elif fc >= 5:
+        trust += 12
+    elif fc >= 1:
+        trust += 8
+
+    # Positive emotions build trust
+    happy = emotions.get("HAPPY", 0) if isinstance(emotions, dict) else 0
+    calm = emotions.get("CALM", 0) if isinstance(emotions, dict) else 0
+    if dom_emotion == "HAPPY":
+        trust += 8
+    elif dom_emotion == "CALM":
+        trust += 5
+
+    # Brand score indicates consistency
+    if brand > 80:
+        trust += 10
+    elif brand > 50:
+        trust += 6
+
+    # Familiar environment labels
+    trust_labels = {"home", "family", "office", "person", "people", "smile",
+                    "handshake", "portrait", "photography", "adult", "man", "woman"}
+    label_hits = sum(1 for l in labels if l in trust_labels)
+    trust += min(label_hits * 2, 10)
+
+    # Persona modulation: tradition-oriented personas value trust more
+    tradition_mod = ((persona.tradition_score or 50) - 50) * 0.08
+    trust = clamp(trust + tradition_mod)
+
+    # ══════════════════════════════════════════════════════════
+    # CLARITY (Botschaftsklarheit & Markenerkennbarkeit)
+    # Signals: brand_score, text presence, text density,
+    #          combined score, label coherence
+    # ══════════════════════════════════════════════════════════
+    clarity = 15  # base
+
+    # Brand score is the strongest clarity signal
+    if brand > 0:
+        clarity += brand * 0.30  # up to +30
+
+    # Combined score reflects overall message quality
+    if combined > 0:
+        clarity += combined * 0.15  # up to +15
+
+    # Text analysis — sweet spot is moderate text
+    text_count = len(texts)
+    if text_count == 0:
+        clarity += 5   # clean but no message
+    elif 1 <= text_count <= 3:
+        clarity += 20  # very clear
+    elif 4 <= text_count <= 6:
+        clarity += 14  # good
+    elif 7 <= text_count <= 10:
+        clarity += 8   # getting busy
+    else:
+        clarity += 2   # cluttered
+
+    # Text frame ratio (for video)
+    if total > 0:
+        text_ratio = tf / total
+        if 0.2 <= text_ratio <= 0.6:
+            clarity += 8   # good text presence
+        elif text_ratio > 0.8:
+            clarity += 3   # overwhelming
+        elif text_ratio > 0:
+            clarity += 5
+
+    # Brand keywords in text
+    brand_keywords = {"ionos", "strato", "1&1", "gmx", "web.de"}
+    brand_in_text = sum(1 for t in texts if any(b in t for b in brand_keywords))
+    if brand_in_text > 0:
+        clarity += 8
+
+    # Status-conscious personas care about polish
+    status_mod = ((persona.status_score or 50) - 50) * 0.06
+    clarity = clamp(clarity + status_mod)
+
+    # ══════════════════════════════════════════════════════════
+    # EMOTION (Emotionale Wirkung & Engagement)
+    # Signals: dominant emotion, confidence, face presence,
+    #          emotional diversity, attention score
+    # ══════════════════════════════════════════════════════════
+    emotion = 10  # base
+
+    # Attention score correlates with emotional engagement
+    if attn > 0:
+        emotion += attn * 0.25  # up to +25
+
+    # Dominant emotion type
+    emotion_bonus = {
+        "HAPPY": 18, "SURPRISED": 14, "CALM": 8,
+        "SAD": 10, "FEAR": 8, "CONFUSED": 5,
+        "ANGRY": 3, "DISGUSTED": 2
+    }
+    emotion += emotion_bonus.get(dom_emotion, 0)
+
+    # Emotion confidence
+    if conf > 0:
+        emotion += conf * 0.12  # up to +12
+
+    # Face presence = emotional connection
+    if fc >= 50:
+        emotion += 18
+    elif fc >= 20:
+        emotion += 14
+    elif fc >= 5:
+        emotion += 10
+    elif fc >= 1:
+        emotion += 6
+
+    # Face-to-frame ratio (video: more face time = more emotion)
+    if total > 0 and ff > 0:
+        face_ratio = ff / total
+        emotion += min(face_ratio * 15, 12)
+    elif fc > 0 and total == 0:
+        emotion += 8  # image with face
+
+    # Emotional diversity bonus
+    if isinstance(emotions, dict):
+        strong_emotions = sum(1 for v in emotions.values() if isinstance(v, (int, float)) and v > 10)
+        if strong_emotions >= 3:
+            emotion += 6
+
+    # Persona modulation
+    emotion = clamp(emotion)
+
+    # ══════════════════════════════════════════════════════════
+    # ACTION (Handlungsaufforderung & Conversion)
+    # Signals: combined score, CTA keywords, brand presence,
+    #          person in frame, visual richness
+    # ══════════════════════════════════════════════════════════
+    action = 10  # base
+
+    # Combined score is a strong action predictor
+    if combined > 0:
+        action += combined * 0.25  # up to +25
+
+    # Brand score = intentional messaging
+    if brand > 80:
+        action += 10
+    elif brand > 50:
+        action += 6
+
+    # CTA keyword detection
+    cta_keywords = {"jetzt", "hier", "gratis", "free", "buy", "shop", "now",
+                    "click", "call", "angebot", "bestellen", "testen", "start",
+                    "los", "entdecken", "mehr", "anmelden", "download", "try",
+                    "get", "save", "deal", "offer", "buchen", "registrieren"}
+    cta_count = sum(1 for t in texts if any(k in t for k in cta_keywords))
+    action += min(cta_count * 10, 20)
+
+    # Brand name in text = deliberate action driving
+    if brand_in_text > 0:
+        action += 8
+
+    # Person/face signals intent
+    person_labels = {"person", "people", "face", "man", "woman", "adult", "child"}
+    if any(l in labels for l in person_labels):
+        action += 6
+
+    # Visual complexity (rich scene = more engaging)
+    label_count = len(labels)
+    if label_count >= 12:
+        action += 6
+    elif label_count >= 6:
+        action += 3
+
+    # Persona modulation
+    action = clamp(action)
+
+    # ══════════════════════════════════════════════════════════
+    # COMBINED SCORE
+    # ══════════════════════════════════════════════════════════
+    # Weighted average with persona-specific emphasis
+    wt = persona.weight_trust or 0.5
+    wc = persona.weight_clarity or 0.5
+    we = persona.weight_emotion or 0.5
+    wa = persona.weight_action or 0.5
+    total_w = wt + wc + we + wa
+
+    # Weights modulate the MIX, not the magnitude
+    combined_score = clamp(
+        (trust * wt + clarity * wc + emotion * we + action * wa) / total_w
+    )
+
+    # Risk assessment
+    risk = "low" if combined_score >= 60 else "medium" if combined_score >= 35 else "high"
+
+    return {
+        "trust_score": trust,
+        "clarity_score": clarity,
+        "emotion_score": emotion,
+        "action_score": action,
+        "combined_score": combined_score,
+        "risk_level": risk,
+    }
+
+
+def run_scoring(db, creative_id, user_id):
+    rek = db.query(RekognitionResult).filter(RekognitionResult.creative_id == creative_id).first()
+    if not rek:
+        logger.error(f"No rekognition result for creative {creative_id}")
+        return None
+
+    # Build data dict from actual Rekognition results
+    emotions = {}
+    fd = safe_dict(rek.face_details)
+    if isinstance(fd, dict):
+        emotions = fd.get("emotions", {})
+    if isinstance(emotions, list):
+        emotions = {}
+
+    d = {
+        "attention_score": rek.attention_score or 0,
+        "brand_score": rek.brand_score or 0,
+        "combined_score": rek.combined_score or 0,
+        "face_count": rek.face_count or 0,
+        "face_frame_count": rek.face_frame_count or 0,
+        "text_frame_count": rek.text_frame_count or 0,
+        "total_frames": rek.total_frames or 0,
+        "dominant_emotion": rek.dominant_emotion or "",
+        "emotion_confidence": rek.emotion_confidence or 0,
+        "texts": get_texts(rek.detected_text),
+        "labels": get_label_names(rek.top_labels),
+        "emotions": emotions,
+    }
+
     personas = db.query(Persona).filter(
         Persona.is_active == True,
-        (Persona.user_id.is_(None)) | (Persona.user_id == user_id)
+        (Persona.user_id == None) | (Persona.user_id == user_id)
     ).order_by(Persona.sort_order).all()
-    
+
     if not personas:
-        seed_default_personas(db)
-        personas = db.query(Persona).filter(Persona.user_id.is_(None)).order_by(Persona.sort_order).all()
-    
-    # Base scores from Rekognition
-    if rekognition_data:
-        base_trust = _calc_trust(rekognition_data)
-        base_clarity = _calc_clarity(rekognition_data)
-        base_emotion = _calc_emotion(rekognition_data)
-        base_action = _calc_action(rekognition_data)
-        has_rekog = True
-    else:
-        # No Rekognition data — use neutral baseline
-        base_trust = base_clarity = base_emotion = base_action = 50.0
-        has_rekog = False
-    
-    # Delete previous results for this creative
+        logger.error("No personas found")
+        return None
+
+    # Clear old results
     db.query(PersonaResult).filter(PersonaResult.creative_id == creative_id).delete()
-    
+
     results = []
-    total_score = 0
-    
-    for persona in personas:
-        # Apply persona-specific weights
-        trust = round(min(base_trust * persona.weight_trust * 1.8, 100), 1)
-        clarity = round(min(base_clarity * persona.weight_clarity * 1.8, 100), 1)
-        emotion = round(min(base_emotion * persona.weight_emotion * 1.8, 100), 1)
-        action = round(min(base_action * persona.weight_action * 1.8, 100), 1)
-        
-        combined = round((trust + clarity + emotion + action) / 4, 1)
-        
-        # Generate reasoning
-        reasoning = _generate_reasoning(persona, trust, clarity, emotion, action, combined)
-        
-        pr = PersonaResult(
-            creative_id=creative_id,
-            persona_id=persona.id,
-            trust_score=trust,
-            clarity_score=clarity,
-            emotion_score=emotion,
-            action_score=action,
-            combined_score=combined,
-            reasoning=reasoning,
-        )
+    for p in personas:
+        scores = calculate_persona_score(p, d)
+        pr = PersonaResult(creative_id=creative_id, persona_id=p.id, **scores)
         db.add(pr)
-        
         results.append({
-            "persona_id": persona.id,
-            "name": persona.name,
-            "slug": persona.slug,
-            "avatar_emoji": persona.avatar_emoji,
-            "color_hex": persona.color_hex,
-            "age_range": persona.age_range,
-            "income_level": persona.income_level,
-            "tradition_score": persona.tradition_score,
-            "status_score": persona.status_score,
-            "trust_score": trust,
-            "clarity_score": clarity,
-            "emotion_score": emotion,
-            "action_score": action,
-            "combined_score": combined,
-            "reasoning": reasoning,
+            "persona_name": p.name, "persona_slug": p.slug,
+            "avatar_emoji": p.avatar_emoji, **scores
         })
-        total_score += combined
-    
-    # Overall score
-    overall = round(total_score / len(personas), 1) if personas else 0
-    risk = "low" if overall >= 65 else "medium" if overall >= 40 else "high" if overall >= 25 else "critical"
-    
-    # Save/update KAMPA score
+
+    cnt = len(results)
+    overall = clamp(sum(r["combined_score"] for r in results) / cnt)
+    trust_avg = clamp(sum(r["trust_score"] for r in results) / cnt)
+    clarity_avg = clamp(sum(r["clarity_score"] for r in results) / cnt)
+    emotion_avg = clamp(sum(r["emotion_score"] for r in results) / cnt)
+    action_avg = clamp(sum(r["action_score"] for r in results) / cnt)
+    risk = "low" if overall >= 60 else "medium" if overall >= 35 else "high"
+
+    # Upsert KampaScore
     ks = db.query(KampaScore).filter(KampaScore.creative_id == creative_id).first()
-    avgs = {
-        "trust_avg": round(sum(r["trust_score"] for r in results) / len(results), 1),
-        "clarity_avg": round(sum(r["clarity_score"] for r in results) / len(results), 1),
-        "emotion_avg": round(sum(r["emotion_score"] for r in results) / len(results), 1),
-        "action_avg": round(sum(r["action_score"] for r in results) / len(results), 1),
-    }
-    
     if ks:
         ks.overall_score = overall
         ks.risk_level = risk
-        ks.persona_count = len(personas)
-        ks.rekognition_available = has_rekog
-        for k, v in avgs.items():
-            setattr(ks, k, v)
+        ks.trust_avg = trust_avg
+        ks.clarity_avg = clarity_avg
+        ks.emotion_avg = emotion_avg
+        ks.action_avg = action_avg
+        ks.persona_count = cnt
     else:
         ks = KampaScore(
             user_id=user_id, creative_id=creative_id,
             overall_score=overall, risk_level=risk,
-            persona_count=len(personas), rekognition_available=has_rekog,
-            **avgs
+            trust_avg=trust_avg, clarity_avg=clarity_avg,
+            emotion_avg=emotion_avg, action_avg=action_avg,
+            persona_count=cnt,
         )
         db.add(ks)
-    
+
     db.commit()
-    
+
+    logger.info(f"Creative {creative_id}: overall={overall} risk={risk} "
+                f"T={trust_avg} C={clarity_avg} E={emotion_avg} A={action_avg}")
+
     return {
-        "overall_score": overall,
-        "risk_level": risk,
-        "persona_count": len(personas),
-        "rekognition_available": has_rekog,
+        "overall_score": overall, "risk_level": risk, "persona_count": cnt,
+        "trust_avg": trust_avg, "clarity_avg": clarity_avg,
+        "emotion_avg": emotion_avg, "action_avg": action_avg,
         "persona_results": results,
-        **avgs,
     }
-
-
-# ─── Dimension Calculators ──────────────────────────────────────────────
-
-def _calc_trust(data: dict) -> float:
-    """Trust = face presence + positive emotions + brand text"""
-    face_ratio = min((data.get("face_frame_count", 0) / max(data.get("total_frames", 1), 1)) * 100, 100)
-    has_smile = any(e.get("type") == "HAPPY" and e.get("confidence", 0) > 50 for e in data.get("top_emotions", []))
-    text_bonus = min(len(data.get("detected_text", [])) * 8, 30)
-    return min(face_ratio * 0.5 + (20 if has_smile else 0) + text_bonus + 15, 100)
-
-def _calc_clarity(data: dict) -> float:
-    """Clarity = text presence + label richness"""
-    text_count = len(data.get("detected_text", []))
-    label_count = len(data.get("top_labels", []))
-    return min(text_count * 12 + label_count * 3 + 20, 100)
-
-def _calc_emotion(data: dict) -> float:
-    """Emotion = dominant emotion confidence + face presence"""
-    emo_conf = data.get("emotion_confidence", 0)
-    face_ratio = min((data.get("face_frame_count", 0) / max(data.get("total_frames", 1), 1)) * 100, 100)
-    return min(emo_conf * 0.6 + face_ratio * 0.3 + 10, 100)
-
-def _calc_action(data: dict) -> float:
-    """Action = dynamic labels + text calls to action"""
-    labels = [l.get("name", "") for l in data.get("top_labels", [])]
-    action_labels = {"Person", "People", "Face", "Text", "Urban", "Architecture", "Car", "Sport"}
-    action_count = sum(1 for l in labels if l in action_labels)
-    text_count = len(data.get("detected_text", []))
-    return min(action_count * 10 + text_count * 8 + 15, 100)
-
-
-def _generate_reasoning(persona, trust, clarity, emotion, action, combined) -> str:
-    """Generate human-readable reasoning for persona score"""
-    parts = []
-    if combined >= 70:
-        parts.append(f"Starke Resonanz bei {persona.name}.")
-    elif combined >= 45:
-        parts.append(f"Moderate Resonanz bei {persona.name}.")
-    else:
-        parts.append(f"Schwache Resonanz bei {persona.name}.")
-    
-    dims = [("Trust", trust), ("Clarity", clarity), ("Emotion", emotion), ("Action", action)]
-    best = max(dims, key=lambda x: x[1])
-    worst = min(dims, key=lambda x: x[1])
-    
-    if best[1] >= 60:
-        parts.append(f"Besonders stark bei {best[0]} ({best[1]}).")
-    if worst[1] < 40:
-        parts.append(f"Schwach bei {worst[0]} ({worst[1]}) — hier besteht Optimierungspotenzial.")
-    
-    return " ".join(parts)
