@@ -7,165 +7,141 @@
 <meta name="description" content="Impressum von IFFIU gemäß § 5 TMG und § 18 MStV.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cream:#f6ecd9;
-    --cream2:#efe1c3;
-    --paper:#fffaf0;
-    --ink:#2b2420;
-    --ink-dim:#6b5f52;
-    --teal:#1f7a7a;
-    --teal-deep:#145c5c;
-    --coral:#d6573f;
-    --coral-deep:#b8402b;
-    --gold:#c99a35;
-    --rule: rgba(43,36,32,.18);
-    --serif:'Cormorant Garamond', Georgia, serif;
-    --display:'Cinzel', serif;
+    --bg:#f5f5f7;
+    --panel:#ffffff;
+    --ink:#1d1d1f;
+    --ink-dim:#6e6e73;
+    --ink-faint:#9a9a9f;
+    --rose:#e7b8bf;
+    --rose-deep:#c98a94;
+    --rose-text:#a9616f;
+    --line: rgba(0,0,0,.08);
+    --sans:'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--cream);}
+  html{background:var(--bg);}
   body{
-    font-family:var(--serif);
-    font-size:18px;
-    line-height:1.75;
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.6;
     color:var(--ink);
+    background:var(--bg);
     -webkit-font-smoothing:antialiased;
-    background:
-      linear-gradient(180deg, var(--cream) 0%, var(--cream2) 100%);
     min-height:100vh;
-  }
-
-  /* --- stepped deco top band --- */
-  .deco-band{
-    height:10px; width:100%;
-    background:
-      repeating-linear-gradient(90deg,
-        var(--teal) 0 18px, var(--cream) 18px 20px,
-        var(--coral) 20px 38px, var(--cream) 38px 40px,
-        var(--gold) 40px 58px, var(--cream) 58px 60px);
   }
 
   nav{
     position:sticky; top:0; z-index:100;
     display:flex; align-items:center; justify-content:space-between;
     padding:20px 56px;
-    background:rgba(246,236,217,.92); backdrop-filter:blur(10px);
-    border-bottom:2px solid var(--ink);
+    background:rgba(245,245,247,.82); backdrop-filter:blur(20px) saturate(1.8);
+    border-bottom:1px solid var(--line);
   }
   .logo{
-    font-family:var(--display); font-weight:700; font-size:22px;
-    letter-spacing:.32em; color:var(--teal-deep); text-decoration:none;
-    text-transform:uppercase;
+    font-weight:700; font-size:19px; letter-spacing:-.02em;
+    color:var(--ink); text-decoration:none;
   }
-  .nav-links{display:flex; gap:36px; align-items:center;}
+  .nav-links{display:flex; gap:32px; align-items:center;}
   .nav-links a{
-    color:var(--ink-dim); text-decoration:none; font-family:var(--display);
-    font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
+    color:var(--ink-dim); text-decoration:none;
+    font-size:13px; font-weight:500; letter-spacing:-.005em;
     transition:color .2s ease;
   }
-  .nav-links a:hover{color:var(--coral-deep);}
+  .nav-links a:hover{color:var(--rose-text);}
 
-  /* --- ornamental header --- */
-  .crest{
-    max-width:720px; margin:0 auto; padding:76px 32px 0; text-align:center;
+  /* --- ambient background glow --- */
+  .glow{
+    position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
   }
-  .sunburst{
-    width:84px; height:84px; margin:0 auto 26px; position:relative;
+  .glow::before, .glow::after{
+    content:""; position:absolute; border-radius:50%; filter:blur(90px); opacity:.5;
   }
-  .sunburst svg{width:100%;height:100%;}
+  .glow::before{
+    width:560px; height:560px; top:-180px; right:-140px;
+    background:radial-gradient(circle, var(--rose) 0%, transparent 70%);
+  }
+  .glow::after{
+    width:480px; height:480px; bottom:-200px; left:-160px;
+    background:radial-gradient(circle, #d9d9de 0%, transparent 70%);
+  }
 
+  .hero{
+    max-width:720px; margin:0 auto; padding:108px 32px 64px; text-align:center;
+  }
   .eyebrow{
-    font-family:var(--display); font-size:11px; letter-spacing:.42em;
-    text-transform:uppercase; color:var(--coral-deep); margin-bottom:18px;
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--rose-text); margin-bottom:22px;
   }
-  .crest h1{
-    font-family:var(--display); font-weight:700; letter-spacing:.06em;
-    font-size:clamp(2rem,4.2vw,3rem); color:var(--teal-deep);
-    text-transform:uppercase;
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--rose-deep);}
+  .hero h1{
+    font-weight:700; letter-spacing:-.03em; line-height:1.05;
+    font-size:clamp(2.6rem,6vw,4rem); color:var(--ink);
   }
-  .crest .subtitle{
-    margin-top:14px; font-style:italic; font-size:17px; color:var(--ink-dim);
-    letter-spacing:.02em;
-  }
-  .fan-rule{
-    width:180px; height:22px; margin:30px auto 0;
-    background:
-      repeating-linear-gradient(to right,
-        transparent 0 2px,
-        var(--gold) 2px 4px);
-    -webkit-mask:linear-gradient(to bottom, #000 0 2px, transparent 2px 22px),
-                 radial-gradient(circle at 50% 0, transparent 0 1px, #000 1px);
-    position:relative;
-  }
-  .fan-rule::before{
-    content:""; position:absolute; left:50%; top:-6px; transform:translateX(-50%) rotate(45deg);
-    width:12px; height:12px; background:var(--coral); border:2px solid var(--ink);
-  }
-  .plain-rule{
-    width:160px; height:3px; margin:28px auto 0; position:relative;
-    background:var(--ink);
-  }
-  .plain-rule i{
-    position:absolute; top:-5px; left:50%; transform:translateX(-50%) rotate(45deg);
-    width:12px; height:12px; background:var(--coral); border:2px solid var(--ink);
+  .hero .subtitle{
+    margin-top:18px; font-size:19px; font-weight:400; color:var(--ink-dim);
+    letter-spacing:-.005em;
   }
 
-  /* --- content --- */
-  .content{max-width:720px; margin:0 auto; padding:56px 32px 140px;}
-  .content h2{
-    font-family:var(--display); font-weight:600; font-size:15px;
-    letter-spacing:.22em; text-transform:uppercase; color:var(--teal-deep);
-    margin:52px 0 20px; display:flex; align-items:center; gap:16px;
-  }
-  .content h2::before{
-    content:""; width:10px; height:10px; background:var(--coral);
-    transform:rotate(45deg); flex-shrink:0; border:2px solid var(--ink);
-  }
-  .content h2::after{content:""; flex:1; height:2px; background:var(--rule);}
-  .content h3{
-    font-family:var(--display); font-weight:600; font-size:14px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--ink);
-    margin:26px 0 10px;
-  }
-  .content p{color:var(--ink-dim); margin-bottom:14px;}
-  .content a{color:var(--coral-deep); text-decoration:none; border-bottom:1px solid var(--coral);}
-  .content a:hover{color:var(--teal-deep); border-color:var(--teal-deep);}
+  .content{max-width:680px; margin:0 auto; padding:0 32px 140px;}
 
-  .panel{
-    background:var(--paper);
-    border:2px solid var(--ink);
-    position:relative;
-    padding:30px 34px;
-    margin:0 0 8px;
-    box-shadow:8px 8px 0 var(--teal);
+  .section{margin-top:64px;}
+  .section-label{
+    font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--rose-text); margin-bottom:14px;
   }
-  .panel .name{
-    font-family:var(--display); font-size:19px; letter-spacing:.04em; color:var(--ink);
-    margin-bottom:10px;
+  .section h3{
+    font-size:13px; font-weight:600; letter-spacing:.02em; text-transform:uppercase;
+    color:var(--ink-faint); margin:28px 0 10px;
   }
-  .panel p{margin-bottom:4px; color:var(--ink-dim);}
-  .panel strong{color:var(--coral-deep); font-weight:600;}
+  .section p{color:var(--ink-dim); margin-bottom:14px; font-size:16px;}
+  .section a{color:var(--rose-text); text-decoration:none; font-weight:500;}
+  .section a:hover{color:var(--ink);}
+
+  .card{
+    background:var(--panel);
+    border-radius:20px;
+    padding:30px 32px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04), 0 12px 32px rgba(0,0,0,.05);
+    border:1px solid var(--line);
+  }
+  .card + .card{margin-top:14px;}
+  .card .name{
+    font-size:19px; font-weight:600; letter-spacing:-.01em; color:var(--ink);
+    margin-bottom:8px;
+  }
+  .card p{margin-bottom:3px; color:var(--ink-dim); font-size:16px;}
+  .card .label{
+    font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-faint); display:block; margin-bottom:3px;
+  }
+
+  hr.divider{
+    border:none; height:1px; background:var(--line); margin:56px 0 0;
+  }
 
   footer{
-    padding:44px 32px 56px; text-align:center; border-top:2px solid var(--ink);
-    font-family:var(--display); font-size:11px; letter-spacing:.18em;
-    text-transform:uppercase; color:var(--ink-dim);
-    background:var(--cream2);
+    padding:40px 32px 56px; text-align:center;
+    border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-faint);
   }
-  footer a{color:var(--teal-deep); text-decoration:none;}
-  footer .mark{color:var(--coral); margin:0 10px;}
+  footer a{color:var(--ink-dim); text-decoration:none; font-weight:500;}
+  footer a:hover{color:var(--rose-text);}
+  footer .sep{margin:0 10px; color:var(--line);}
 
-  @media(max-width:768px){
+  @media(max-width:640px){
     nav{padding:16px 20px;} .nav-links{gap:18px;}
-    .content{padding:40px 20px 100px;}
-    .panel{padding:24px 20px; box-shadow:6px 6px 0 var(--teal);}
+    .hero{padding:72px 20px 48px;}
+    .content{padding:0 20px 100px;}
+    .card{padding:24px 22px;}
   }
 </style>
 </head>
 <body>
-<div class="deco-band"></div>
+<div class="glow"></div>
 <nav>
   <a href="/" class="logo">IFFIU</a>
   <div class="nav-links">
@@ -176,86 +152,75 @@
   </div>
 </nav>
 
-<div class="crest">
-  <div class="sunburst">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <g transform="translate(50,50)">
-        <circle r="46" fill="none" stroke="#2b2420" stroke-width="2"/>
-        <g stroke="#1f7a7a" stroke-width="3">
-          <line x1="0" y1="-40" x2="0" y2="-46"/>
-          <line x1="20" y1="-34.6" x2="23" y2="-39.8"/>
-          <line x1="34.6" y1="-20" x2="39.8" y2="-23"/>
-          <line x1="40" y1="0" x2="46" y2="0"/>
-          <line x1="34.6" y1="20" x2="39.8" y2="23"/>
-          <line x1="20" y1="34.6" x2="23" y2="39.8"/>
-          <line x1="0" y1="40" x2="0" y2="46"/>
-          <line x1="-20" y1="34.6" x2="-23" y2="39.8"/>
-          <line x1="-34.6" y1="20" x2="-39.8" y2="23"/>
-          <line x1="-40" y1="0" x2="-46" y2="0"/>
-          <line x1="-34.6" y1="-20" x2="-39.8" y2="-23"/>
-          <line x1="-20" y1="-34.6" x2="-23" y2="-39.8"/>
-        </g>
-        <circle r="26" fill="#f6ecd9" stroke="#2b2420" stroke-width="2"/>
-        <circle r="10" fill="#d6573f" stroke="#2b2420" stroke-width="2"/>
-      </g>
-    </svg>
-  </div>
-  <div class="eyebrow">Rechtliche Angaben</div>
+<div class="hero">
+  <div class="eyebrow"><span class="dot"></span>Rechtliche Angaben</div>
   <h1>Impressum</h1>
   <p class="subtitle">Angaben gemäß § 5 TMG und § 18 MStV</p>
-  <div class="plain-rule"><i></i></div>
 </div>
 
 <div class="content">
 
-  <h2>Anbieter</h2>
-  <div class="panel">
-    <p class="name">Rafael Oliveira Göpfert</p>
-    <p>Fichtenhain 15</p>
-    <p>51069 Köln</p>
-    <p>Deutschland</p>
+  <div class="section">
+    <div class="section-label">Anbieter</div>
+    <div class="card">
+      <p class="name">Rafael Oliveira Göpfert</p>
+      <p>Im Fichtenhain 15</p>
+      <p>51069 Köln</p>
+      <p>Deutschland</p>
+    </div>
   </div>
 
-  <h2>Kontakt</h2>
-  <div class="panel">
-    <p><strong>E-Mail:</strong> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a></p>
+  <div class="section">
+    <div class="section-label">Kontakt</div>
+    <div class="card">
+      <span class="label">E-Mail</span>
+      <p><a href="mailto:admin@iffiu.com">admin@iffiu.com</a></p>
+    </div>
   </div>
 
-  <h2>Verantwortlich für den Inhalt</h2>
-  <p>Verantwortlich nach § 18 Abs. 2 MStV:<br>
-  Rafael Oliveira Göpfert, Fichtenhain 15, 51069 Köln</p>
+  <div class="section">
+    <div class="section-label">Verantwortlich für den Inhalt</div>
+    <p>Verantwortlich nach § 18 Abs. 2 MStV:<br>
+    Rafael Oliveira Göpfert, Im Fichtenhain 15, 51069 Köln</p>
+  </div>
 
-  <h2>Streitschlichtung</h2>
-  <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
-  <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.
-  Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer
-  Verbraucherschlichtungsstelle teilzunehmen.</p>
+  <div class="section">
+    <div class="section-label">Streitschlichtung</div>
+    <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+    <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.
+    Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer
+    Verbraucherschlichtungsstelle teilzunehmen.</p>
+  </div>
 
-  <h2>Haftungsausschluss</h2>
-  <h3>Haftung für Inhalte</h3>
-  <p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit
-  und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß
-  § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach
-  §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte
-  fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit
-  hinweisen.</p>
+  <hr class="divider">
 
-  <h3>Haftung für Links</h3>
-  <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben.
-  Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten
-  Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+  <div class="section">
+    <div class="section-label">Haftungsausschluss</div>
+    <h3>Haftung für Inhalte</h3>
+    <p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit
+    und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß
+    § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach
+    §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte
+    fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit
+    hinweisen.</p>
 
-  <h3>Urheberrecht</h3>
-  <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen
-  Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der
-  Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+    <h3>Haftung für Links</h3>
+    <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben.
+    Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten
+    Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+
+    <h3>Urheberrecht</h3>
+    <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen
+    Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der
+    Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+  </div>
 
 </div>
 
 <footer>
-  IFFIU <span class="mark">&#9670;</span> <a href="/impressum">Impressum</a> <span class="mark">&#9670;</span>
-  <a href="/privacy">Privacy</a> <span class="mark">&#9670;</span> <a href="/agb">AGB</a>
-  <span class="mark">&#9670;</span> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a>
+  IFFIU <span class="sep">&middot;</span> <a href="/impressum">Impressum</a> <span class="sep">&middot;</span>
+  <a href="/privacy">Privacy</a> <span class="sep">&middot;</span> <a href="/agb">AGB</a>
+  <span class="sep">&middot;</span> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a>
 </footer>
 </body>
 </html>
