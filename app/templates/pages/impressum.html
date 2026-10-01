@@ -4,32 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Impressum — IFFIU</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<meta name="description" content="Impressum von IFFIU gemäß § 5 TMG und § 18 MStV.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root { --bg:#eef0f7; --surface:#ffffff; --border:rgba(15,23,42,.09); --text:#0f172a; --text-sub:#374151; --text-dim:#6b7280; --accent:#6366f1; --accent2:#8b5cf6; --font:'Outfit',system-ui,sans-serif; }
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-body { font-family:var(--font); background:var(--bg); color:var(--text); line-height:1.7; -webkit-font-smoothing:antialiased; }
-nav { position:sticky; top:0; z-index:100; padding:14px 48px; display:flex; align-items:center; justify-content:space-between; backdrop-filter:blur(24px) saturate(1.4); background:rgba(238,240,247,.88); border-bottom:1px solid var(--border); }
-.logo { font-size:26px; font-weight:900; letter-spacing:-.04em; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; }
-.nav-links { display:flex; gap:24px; align-items:center; }
-.nav-links a { color:var(--text-sub); text-decoration:none; font-size:14px; font-weight:600; }
-.nav-links a:hover { color:var(--accent); }
-.content { max-width:800px; margin:0 auto; padding:80px 32px 120px; }
-.content h1 { font-size:clamp(2rem,4vw,3rem); font-weight:900; letter-spacing:-.04em; margin-bottom:8px; }
-.content .subtitle { font-size:15px; color:var(--text-dim); margin-bottom:48px; }
-.content h2 { font-size:22px; font-weight:800; margin-top:40px; margin-bottom:12px; letter-spacing:-.02em; }
-.content h3 { font-size:17px; font-weight:700; margin-top:28px; margin-bottom:8px; }
-.content p { color:var(--text-sub); margin-bottom:16px; font-size:15px; }
-.content ul { margin:0 0 16px 24px; color:var(--text-sub); font-size:15px; }
-.content li { margin-bottom:6px; }
-.content a { color:var(--accent); text-decoration:none; font-weight:600; }
-.content a:hover { text-decoration:underline; }
-.info-block { background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:28px; margin:24px 0; }
-.info-block p { margin-bottom:6px; }
-.info-block strong { color:var(--text); }
-footer { padding:48px; text-align:center; border-top:1px solid var(--border); font-size:13px; color:var(--text-dim); }
-footer a { color:var(--accent); text-decoration:none; font-weight:600; }
-@media(max-width:768px) { nav{padding:14px 20px;} .content{padding:48px 20px 80px;} }
+  :root{
+    --ink:#0c0c0d;
+    --ink2:#141416;
+    --panel:#17171a;
+    --gold:#c9a24b;
+    --gold-soft:#a9893f;
+    --gold-bright:#e8c877;
+    --cream:#efe7d6;
+    --cream-dim:#bdb2a0;
+    --rule: rgba(201,162,75,.35);
+    --serif:'Cormorant Garamond', Georgia, serif;
+    --display:'Cinzel', serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--ink); color:var(--cream);}
+  body{
+    font-family:var(--serif);
+    font-size:18px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(201,162,75,.08), transparent 60%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, transparent 2px 60px),
+      var(--ink);
+    min-height:100vh;
+  }
+
+  /* --- nav --- */
+  nav{
+    position:sticky; top:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px 56px;
+    background:rgba(12,12,13,.86); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--rule);
+  }
+  .logo{
+    font-family:var(--display); font-weight:700; font-size:22px;
+    letter-spacing:.32em; color:var(--gold-bright); text-decoration:none;
+    text-transform:uppercase;
+  }
+  .nav-links{display:flex; gap:36px; align-items:center;}
+  .nav-links a{
+    color:var(--cream-dim); text-decoration:none; font-family:var(--display);
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
+    transition:color .2s ease;
+  }
+  .nav-links a:hover{color:var(--gold-bright);}
+
+  /* --- ornamental header --- */
+  .crest{
+    max-width:720px; margin:0 auto; padding:88px 32px 0; text-align:center;
+  }
+  .sunburst{
+    width:72px; height:72px; margin:0 auto 28px; position:relative;
+  }
+  .sunburst::before, .sunburst::after{
+    content:""; position:absolute; inset:0;
+    background:
+      conic-gradient(from 0deg,
+        var(--gold) 0deg 8deg, transparent 8deg 22.5deg,
+        var(--gold) 22.5deg 30.5deg, transparent 30.5deg 45deg,
+        var(--gold) 45deg 53deg, transparent 53deg 67.5deg,
+        var(--gold) 67.5deg 75.5deg, transparent 75.5deg 90deg,
+        var(--gold) 90deg 98deg, transparent 98deg 112.5deg,
+        var(--gold) 112.5deg 120.5deg, transparent 120.5deg 135deg,
+        var(--gold) 135deg 143deg, transparent 143deg 157.5deg,
+        var(--gold) 157.5deg 165.5deg, transparent 165.5deg 180deg,
+        var(--gold) 180deg 188deg, transparent 188deg 202.5deg,
+        var(--gold) 202.5deg 210.5deg, transparent 210.5deg 225deg,
+        var(--gold) 225deg 233deg, transparent 233deg 247.5deg,
+        var(--gold) 247.5deg 255.5deg, transparent 255.5deg 270deg,
+        var(--gold) 270deg 278deg, transparent 278deg 292.5deg,
+        var(--gold) 292.5deg 300.5deg, transparent 300.5deg 315deg,
+        var(--gold) 315deg 323deg, transparent 323deg 337.5deg,
+        var(--gold) 337.5deg 345.5deg, transparent 345.5deg 360deg);
+    border-radius:50%;
+    -webkit-mask:radial-gradient(circle, transparent 30%, #000 31%, #000 100%);
+            mask:radial-gradient(circle, transparent 30%, #000 31%, #000 100%);
+    opacity:.85;
+  }
+  .sunburst::after{
+    inset:14px;
+    -webkit-mask:radial-gradient(circle, #000 0%, #000 55%, transparent 56%);
+            mask:radial-gradient(circle, #000 0%, #000 55%, transparent 56%);
+    opacity:1;
+  }
+  .eyebrow{
+    font-family:var(--display); font-size:11px; letter-spacing:.42em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:18px;
+  }
+  .crest h1{
+    font-family:var(--display); font-weight:700; letter-spacing:.06em;
+    font-size:clamp(2rem,4.2vw,3rem); color:var(--cream);
+    text-transform:uppercase;
+  }
+  .crest .subtitle{
+    margin-top:14px; font-style:italic; font-size:17px; color:var(--cream-dim);
+    letter-spacing:.02em;
+  }
+  .double-rule{
+    width:140px; height:10px; margin:34px auto 0; position:relative;
+  }
+  .double-rule::before, .double-rule::after{
+    content:""; position:absolute; left:0; right:0; height:1px; background:var(--gold);
+  }
+  .double-rule::before{top:0;}
+  .double-rule::after{top:6px;}
+  .double-rule i{
+    position:absolute; top:-5px; left:50%; transform:translateX(-50%) rotate(45deg);
+    width:11px; height:11px; background:var(--gold);
+  }
+
+  /* --- content --- */
+  .content{max-width:720px; margin:0 auto; padding:56px 32px 140px;}
+  .content h2{
+    font-family:var(--display); font-weight:600; font-size:15px;
+    letter-spacing:.24em; text-transform:uppercase; color:var(--gold-bright);
+    margin:52px 0 20px; display:flex; align-items:center; gap:16px;
+  }
+  .content h2::after{content:""; flex:1; height:1px; background:var(--rule);}
+  .content h3{
+    font-family:var(--display); font-weight:600; font-size:14px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--cream);
+    margin:26px 0 10px;
+  }
+  .content p{color:var(--cream-dim); margin-bottom:14px;}
+  .content a{color:var(--gold-bright); text-decoration:none; border-bottom:1px solid var(--rule);}
+  .content a:hover{color:var(--gold); border-color:var(--gold);}
+
+  .panel{
+    background:linear-gradient(180deg, var(--panel), var(--ink2));
+    border:1px solid var(--rule);
+    position:relative;
+    padding:34px 36px;
+    margin:0 0 8px;
+  }
+  .panel::before{
+    content:""; position:absolute; inset:6px; border:1px solid rgba(201,162,75,.18); pointer-events:none;
+  }
+  .panel .name{
+    font-family:var(--display); font-size:19px; letter-spacing:.04em; color:var(--cream);
+    margin-bottom:10px;
+  }
+  .panel p{margin-bottom:4px; color:var(--cream-dim);}
+  .panel strong{color:var(--gold-bright); font-weight:600;}
+
+  footer{
+    padding:52px 32px; text-align:center; border-top:1px solid var(--rule);
+    font-family:var(--display); font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--cream-dim);
+  }
+  footer a{color:var(--gold-bright); text-decoration:none;}
+  footer .mark{color:var(--gold); margin:0 10px;}
+
+  @media(max-width:768px){
+    nav{padding:18px 22px;} .nav-links{gap:20px;}
+    .content{padding:40px 20px 100px;}
+    .panel{padding:26px 22px;}
+  }
 </style>
 </head>
 <body>
@@ -42,36 +180,65 @@ footer a { color:var(--accent); text-decoration:none; font-weight:600; }
     <a href="/agb">AGB</a>
   </div>
 </nav>
+
+<div class="crest">
+  <div class="sunburst"></div>
+  <div class="eyebrow">Rechtliche Angaben</div>
+  <h1>Impressum</h1>
+  <p class="subtitle">Angaben gemäß § 5 TMG und § 18 MStV</p>
+  <div class="double-rule"><i></i></div>
+</div>
+
 <div class="content">
-<h1>Impressum</h1>
-<p class="subtitle">Angaben gemäß § 5 TMG</p>
 
-<div class="info-block">
-  <p><strong>pimentaGROUP</strong></p>
-  <p>Inhaber: Herr Gabriel Morais</p>
-  <p>Von-Vincke-Straße 5-7 (4. Etage)</p>
-  <p>D-48143 · Münster · Deutschland</p>
+  <h2>Anbieter</h2>
+  <div class="panel">
+    <p class="name">Rafael Oliveira Göpfert</p>
+    <p>Fichtenhain 15</p>
+    <p>51069 Köln</p>
+    <p>Deutschland</p>
+  </div>
+
+  <h2>Kontakt</h2>
+  <div class="panel">
+    <p><strong>E-Mail:</strong> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a></p>
+  </div>
+
+  <h2>Verantwortlich für den Inhalt</h2>
+  <p>Verantwortlich nach § 18 Abs. 2 MStV:<br>
+  Rafael Oliveira Göpfert, Fichtenhain 15, 51069 Köln</p>
+
+  <h2>Streitschlichtung</h2>
+  <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit:
+  <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">ec.europa.eu/consumers/odr</a>.
+  Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer
+  Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+  <h2>Haftungsausschluss</h2>
+  <h3>Haftung für Inhalte</h3>
+  <p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit
+  und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß
+  § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach
+  §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte
+  fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit
+  hinweisen.</p>
+
+  <h3>Haftung für Links</h3>
+  <p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben.
+  Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten
+  Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
+
+  <h3>Urheberrecht</h3>
+  <p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen
+  Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der
+  Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
+
 </div>
 
-<h2>Kontakt</h2>
-<div class="info-block">
-  <p><strong>Telefon:</strong> +49 (0) 251 748 497 41</p>
-  <p><strong>Fax:</strong> +49 (0) 322 264 129 17</p>
-  <p><strong>E-Mail:</strong> <a href="mailto:info@pimentagroup.de">info@pimentagroup.de</a></p>
-</div>
-
-<h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-<p>Gabriel Morais<br>Von-Vincke-Straße 5-7 (4. Etage)<br>D-48143 Münster</p>
-
-<h2>Haftungsausschluss</h2>
-<h3>Haftung für Inhalte</h3>
-<p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
-
-<h3>Haftung für Links</h3>
-<p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.</p>
-
-<h3>Urheberrecht</h3>
-<p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.</p>
-</div>
-<footer><p>&copy; 2026 IFFIU &middot; <a href="/impressum">Impressum</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/agb">AGB</a> &middot; <a href="mailto:hello@iffiu.com">hello@iffiu.com</a></p></footer>
-</body></html>
+<footer>
+  IFFIU <span class="mark">&#10070;</span> <a href="/impressum">Impressum</a> <span class="mark">&#10070;</span>
+  <a href="/privacy">Privacy</a> <span class="mark">&#10070;</span> <a href="/agb">AGB</a>
+  <span class="mark">&#10070;</span> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a>
+</footer>
+</body>
+</html>
