@@ -7,170 +7,165 @@
 <meta name="description" content="Impressum von IFFIU gemäß § 5 TMG und § 18 MStV.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Cormorant+Garamond:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0c0c0d;
-    --ink2:#141416;
-    --panel:#17171a;
-    --gold:#c9a24b;
-    --gold-soft:#a9893f;
-    --gold-bright:#e8c877;
-    --cream:#efe7d6;
-    --cream-dim:#bdb2a0;
-    --rule: rgba(201,162,75,.35);
+    --cream:#f6ecd9;
+    --cream2:#efe1c3;
+    --paper:#fffaf0;
+    --ink:#2b2420;
+    --ink-dim:#6b5f52;
+    --teal:#1f7a7a;
+    --teal-deep:#145c5c;
+    --coral:#d6573f;
+    --coral-deep:#b8402b;
+    --gold:#c99a35;
+    --rule: rgba(43,36,32,.18);
     --serif:'Cormorant Garamond', Georgia, serif;
     --display:'Cinzel', serif;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html,body{background:var(--ink); color:var(--cream);}
+  html,body{background:var(--cream);}
   body{
     font-family:var(--serif);
     font-size:18px;
     line-height:1.75;
+    color:var(--ink);
     -webkit-font-smoothing:antialiased;
     background:
-      radial-gradient(1200px 600px at 50% -10%, rgba(201,162,75,.08), transparent 60%),
-      repeating-linear-gradient(135deg, rgba(255,255,255,.015) 0 2px, transparent 2px 60px),
-      var(--ink);
+      linear-gradient(180deg, var(--cream) 0%, var(--cream2) 100%);
     min-height:100vh;
   }
 
-  /* --- nav --- */
+  /* --- stepped deco top band --- */
+  .deco-band{
+    height:10px; width:100%;
+    background:
+      repeating-linear-gradient(90deg,
+        var(--teal) 0 18px, var(--cream) 18px 20px,
+        var(--coral) 20px 38px, var(--cream) 38px 40px,
+        var(--gold) 40px 58px, var(--cream) 58px 60px);
+  }
+
   nav{
     position:sticky; top:0; z-index:100;
     display:flex; align-items:center; justify-content:space-between;
-    padding:22px 56px;
-    background:rgba(12,12,13,.86); backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--rule);
+    padding:20px 56px;
+    background:rgba(246,236,217,.92); backdrop-filter:blur(10px);
+    border-bottom:2px solid var(--ink);
   }
   .logo{
     font-family:var(--display); font-weight:700; font-size:22px;
-    letter-spacing:.32em; color:var(--gold-bright); text-decoration:none;
+    letter-spacing:.32em; color:var(--teal-deep); text-decoration:none;
     text-transform:uppercase;
   }
   .nav-links{display:flex; gap:36px; align-items:center;}
   .nav-links a{
-    color:var(--cream-dim); text-decoration:none; font-family:var(--display);
+    color:var(--ink-dim); text-decoration:none; font-family:var(--display);
     font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:600;
     transition:color .2s ease;
   }
-  .nav-links a:hover{color:var(--gold-bright);}
+  .nav-links a:hover{color:var(--coral-deep);}
 
   /* --- ornamental header --- */
   .crest{
-    max-width:720px; margin:0 auto; padding:88px 32px 0; text-align:center;
+    max-width:720px; margin:0 auto; padding:76px 32px 0; text-align:center;
   }
   .sunburst{
-    width:72px; height:72px; margin:0 auto 28px; position:relative;
+    width:84px; height:84px; margin:0 auto 26px; position:relative;
   }
-  .sunburst::before, .sunburst::after{
-    content:""; position:absolute; inset:0;
-    background:
-      conic-gradient(from 0deg,
-        var(--gold) 0deg 8deg, transparent 8deg 22.5deg,
-        var(--gold) 22.5deg 30.5deg, transparent 30.5deg 45deg,
-        var(--gold) 45deg 53deg, transparent 53deg 67.5deg,
-        var(--gold) 67.5deg 75.5deg, transparent 75.5deg 90deg,
-        var(--gold) 90deg 98deg, transparent 98deg 112.5deg,
-        var(--gold) 112.5deg 120.5deg, transparent 120.5deg 135deg,
-        var(--gold) 135deg 143deg, transparent 143deg 157.5deg,
-        var(--gold) 157.5deg 165.5deg, transparent 165.5deg 180deg,
-        var(--gold) 180deg 188deg, transparent 188deg 202.5deg,
-        var(--gold) 202.5deg 210.5deg, transparent 210.5deg 225deg,
-        var(--gold) 225deg 233deg, transparent 233deg 247.5deg,
-        var(--gold) 247.5deg 255.5deg, transparent 255.5deg 270deg,
-        var(--gold) 270deg 278deg, transparent 278deg 292.5deg,
-        var(--gold) 292.5deg 300.5deg, transparent 300.5deg 315deg,
-        var(--gold) 315deg 323deg, transparent 323deg 337.5deg,
-        var(--gold) 337.5deg 345.5deg, transparent 345.5deg 360deg);
-    border-radius:50%;
-    -webkit-mask:radial-gradient(circle, transparent 30%, #000 31%, #000 100%);
-            mask:radial-gradient(circle, transparent 30%, #000 31%, #000 100%);
-    opacity:.85;
-  }
-  .sunburst::after{
-    inset:14px;
-    -webkit-mask:radial-gradient(circle, #000 0%, #000 55%, transparent 56%);
-            mask:radial-gradient(circle, #000 0%, #000 55%, transparent 56%);
-    opacity:1;
-  }
+  .sunburst svg{width:100%;height:100%;}
+
   .eyebrow{
     font-family:var(--display); font-size:11px; letter-spacing:.42em;
-    text-transform:uppercase; color:var(--gold); margin-bottom:18px;
+    text-transform:uppercase; color:var(--coral-deep); margin-bottom:18px;
   }
   .crest h1{
     font-family:var(--display); font-weight:700; letter-spacing:.06em;
-    font-size:clamp(2rem,4.2vw,3rem); color:var(--cream);
+    font-size:clamp(2rem,4.2vw,3rem); color:var(--teal-deep);
     text-transform:uppercase;
   }
   .crest .subtitle{
-    margin-top:14px; font-style:italic; font-size:17px; color:var(--cream-dim);
+    margin-top:14px; font-style:italic; font-size:17px; color:var(--ink-dim);
     letter-spacing:.02em;
   }
-  .double-rule{
-    width:140px; height:10px; margin:34px auto 0; position:relative;
+  .fan-rule{
+    width:180px; height:22px; margin:30px auto 0;
+    background:
+      repeating-linear-gradient(to right,
+        transparent 0 2px,
+        var(--gold) 2px 4px);
+    -webkit-mask:linear-gradient(to bottom, #000 0 2px, transparent 2px 22px),
+                 radial-gradient(circle at 50% 0, transparent 0 1px, #000 1px);
+    position:relative;
   }
-  .double-rule::before, .double-rule::after{
-    content:""; position:absolute; left:0; right:0; height:1px; background:var(--gold);
+  .fan-rule::before{
+    content:""; position:absolute; left:50%; top:-6px; transform:translateX(-50%) rotate(45deg);
+    width:12px; height:12px; background:var(--coral); border:2px solid var(--ink);
   }
-  .double-rule::before{top:0;}
-  .double-rule::after{top:6px;}
-  .double-rule i{
+  .plain-rule{
+    width:160px; height:3px; margin:28px auto 0; position:relative;
+    background:var(--ink);
+  }
+  .plain-rule i{
     position:absolute; top:-5px; left:50%; transform:translateX(-50%) rotate(45deg);
-    width:11px; height:11px; background:var(--gold);
+    width:12px; height:12px; background:var(--coral); border:2px solid var(--ink);
   }
 
   /* --- content --- */
   .content{max-width:720px; margin:0 auto; padding:56px 32px 140px;}
   .content h2{
     font-family:var(--display); font-weight:600; font-size:15px;
-    letter-spacing:.24em; text-transform:uppercase; color:var(--gold-bright);
+    letter-spacing:.22em; text-transform:uppercase; color:var(--teal-deep);
     margin:52px 0 20px; display:flex; align-items:center; gap:16px;
   }
-  .content h2::after{content:""; flex:1; height:1px; background:var(--rule);}
+  .content h2::before{
+    content:""; width:10px; height:10px; background:var(--coral);
+    transform:rotate(45deg); flex-shrink:0; border:2px solid var(--ink);
+  }
+  .content h2::after{content:""; flex:1; height:2px; background:var(--rule);}
   .content h3{
     font-family:var(--display); font-weight:600; font-size:14px;
-    letter-spacing:.1em; text-transform:uppercase; color:var(--cream);
+    letter-spacing:.1em; text-transform:uppercase; color:var(--ink);
     margin:26px 0 10px;
   }
-  .content p{color:var(--cream-dim); margin-bottom:14px;}
-  .content a{color:var(--gold-bright); text-decoration:none; border-bottom:1px solid var(--rule);}
-  .content a:hover{color:var(--gold); border-color:var(--gold);}
+  .content p{color:var(--ink-dim); margin-bottom:14px;}
+  .content a{color:var(--coral-deep); text-decoration:none; border-bottom:1px solid var(--coral);}
+  .content a:hover{color:var(--teal-deep); border-color:var(--teal-deep);}
 
   .panel{
-    background:linear-gradient(180deg, var(--panel), var(--ink2));
-    border:1px solid var(--rule);
+    background:var(--paper);
+    border:2px solid var(--ink);
     position:relative;
-    padding:34px 36px;
+    padding:30px 34px;
     margin:0 0 8px;
-  }
-  .panel::before{
-    content:""; position:absolute; inset:6px; border:1px solid rgba(201,162,75,.18); pointer-events:none;
+    box-shadow:8px 8px 0 var(--teal);
   }
   .panel .name{
-    font-family:var(--display); font-size:19px; letter-spacing:.04em; color:var(--cream);
+    font-family:var(--display); font-size:19px; letter-spacing:.04em; color:var(--ink);
     margin-bottom:10px;
   }
-  .panel p{margin-bottom:4px; color:var(--cream-dim);}
-  .panel strong{color:var(--gold-bright); font-weight:600;}
+  .panel p{margin-bottom:4px; color:var(--ink-dim);}
+  .panel strong{color:var(--coral-deep); font-weight:600;}
 
   footer{
-    padding:52px 32px; text-align:center; border-top:1px solid var(--rule);
+    padding:44px 32px 56px; text-align:center; border-top:2px solid var(--ink);
     font-family:var(--display); font-size:11px; letter-spacing:.18em;
-    text-transform:uppercase; color:var(--cream-dim);
+    text-transform:uppercase; color:var(--ink-dim);
+    background:var(--cream2);
   }
-  footer a{color:var(--gold-bright); text-decoration:none;}
-  footer .mark{color:var(--gold); margin:0 10px;}
+  footer a{color:var(--teal-deep); text-decoration:none;}
+  footer .mark{color:var(--coral); margin:0 10px;}
 
   @media(max-width:768px){
-    nav{padding:18px 22px;} .nav-links{gap:20px;}
+    nav{padding:16px 20px;} .nav-links{gap:18px;}
     .content{padding:40px 20px 100px;}
-    .panel{padding:26px 22px;}
+    .panel{padding:24px 20px; box-shadow:6px 6px 0 var(--teal);}
   }
 </style>
 </head>
 <body>
+<div class="deco-band"></div>
 <nav>
   <a href="/" class="logo">IFFIU</a>
   <div class="nav-links">
@@ -182,11 +177,33 @@
 </nav>
 
 <div class="crest">
-  <div class="sunburst"></div>
+  <div class="sunburst">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <circle r="46" fill="none" stroke="#2b2420" stroke-width="2"/>
+        <g stroke="#1f7a7a" stroke-width="3">
+          <line x1="0" y1="-40" x2="0" y2="-46"/>
+          <line x1="20" y1="-34.6" x2="23" y2="-39.8"/>
+          <line x1="34.6" y1="-20" x2="39.8" y2="-23"/>
+          <line x1="40" y1="0" x2="46" y2="0"/>
+          <line x1="34.6" y1="20" x2="39.8" y2="23"/>
+          <line x1="20" y1="34.6" x2="23" y2="39.8"/>
+          <line x1="0" y1="40" x2="0" y2="46"/>
+          <line x1="-20" y1="34.6" x2="-23" y2="39.8"/>
+          <line x1="-34.6" y1="20" x2="-39.8" y2="23"/>
+          <line x1="-40" y1="0" x2="-46" y2="0"/>
+          <line x1="-34.6" y1="-20" x2="-39.8" y2="-23"/>
+          <line x1="-20" y1="-34.6" x2="-23" y2="-39.8"/>
+        </g>
+        <circle r="26" fill="#f6ecd9" stroke="#2b2420" stroke-width="2"/>
+        <circle r="10" fill="#d6573f" stroke="#2b2420" stroke-width="2"/>
+      </g>
+    </svg>
+  </div>
   <div class="eyebrow">Rechtliche Angaben</div>
   <h1>Impressum</h1>
   <p class="subtitle">Angaben gemäß § 5 TMG und § 18 MStV</p>
-  <div class="double-rule"><i></i></div>
+  <div class="plain-rule"><i></i></div>
 </div>
 
 <div class="content">
@@ -236,9 +253,9 @@
 </div>
 
 <footer>
-  IFFIU <span class="mark">&#10070;</span> <a href="/impressum">Impressum</a> <span class="mark">&#10070;</span>
-  <a href="/privacy">Privacy</a> <span class="mark">&#10070;</span> <a href="/agb">AGB</a>
-  <span class="mark">&#10070;</span> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a>
+  IFFIU <span class="mark">&#9670;</span> <a href="/impressum">Impressum</a> <span class="mark">&#9670;</span>
+  <a href="/privacy">Privacy</a> <span class="mark">&#9670;</span> <a href="/agb">AGB</a>
+  <span class="mark">&#9670;</span> <a href="mailto:admin@iffiu.com">admin@iffiu.com</a>
 </footer>
 </body>
 </html>
